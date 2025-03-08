@@ -1,0 +1,40 @@
+#map {
+	height: 700px;
+	width: 90%;
+	z-index: 0;
+}
+
+#openMenu {
+	position: absolute;
+	padding: 5px;
+	top: 90px;
+	left: 15px;
+	background-color: white;
+	border-radius: 5px;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+	overflow-x: hidden;
+	z-index: 1;
+}
+
+.nav-menu #closeMenu {
+	position: absolute;
+	top: 6px;
+	right: 10px;
+	color: black;
+	cursor: pointer;
+	text-decoration: none;
+}
+
+.nav-menu {
+	height: 701px;
+	background-color: white;
+	transition: 5s;
+	position: absolute;
+	width: 0;
+	top: 75px;
+	left: 8px;
+	padding-top: 10px;
+	text-decoration: none;
+	z-index: 1;
+	display: none;
+}
