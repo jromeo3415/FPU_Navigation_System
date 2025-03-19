@@ -4,7 +4,7 @@ from flask_mysqldb import MySQL
 import server_utils
 import json
 
-accessKey = 1234 # implementing an access key so users can not query the back end and get to decorator functions.
+accessKey = 1234 # implementing an access key so users can not query the back end and get to decorator functions. another access key should be received from front end.
 
 app = Flask(__name__)  # Flask constructor
 
@@ -30,13 +30,10 @@ def getLocation(): # query database for coordinates
     print(formatted_coords)
     return jsonify(formatted_coords)
 
+
 @app.route('/')
 def index():
     return render_template("index.html")
-
-@app.route('/test', methods=["GET", "POST"])
-def test():
-    return 'Test worked!!!'
 
 if __name__ == '__main__':
     app.run(debug = True)
