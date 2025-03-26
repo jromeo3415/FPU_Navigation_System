@@ -30,6 +30,21 @@ def getLocation(): # query database for coordinates
     print(formatted_coords)
     return jsonify(formatted_coords)
 
+#   expects a JSON packet with format;  "key": "key1", "locations": "location_1", "location_2"
+#   location_1 and location_2 will be start and destination's names respectively, in plain text
+#   this function will turn those strings into coords then those two coords into one route, and send the route back in a JSON response
+@app.route('/returnRoute', methods=['POST'])
+def returnRoute():
+    request_dict = request.get_json() # converting JSON request to a Python dictionary
+
+    if not request_dict: # if no locations were sent, send back error
+        return jsonify({"error": "Request contents not received"}), 400
+
+    server_utils.check_key(request_dict["string"], accessKey) # checking if access key is valid so clients cannot stumble upon this page
+
+    coordinates = getLocation(request_dict["locations"]) # converting name strings into respective coordinates
+
+
 
 @app.route('/')
 def index():
