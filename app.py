@@ -7,7 +7,7 @@ import json
 
 accessKey = 1234 # implementing an access key so users can not query the back end and get to decorator functions. another access key should be received from front end.
 
-osrm_ip = "100.83.147.89"
+osrm_ip = "100.83.147.89:5000"
 app = Flask(__name__)  # Flask constructor
 
 CORS(app)
@@ -38,6 +38,10 @@ def returnRoute():
 
     route = calcRoute(osrm_ip, coordinates, request_dict["profile"])
     return route
+
+    # test string below
+    #curl -X POST 127.0.0.1:5000/returnRoute -H "Content-Type: application/json" -d '{"key": "1234", "locations": ["IST", "BARC"], "profile": "foot"}'
+
 @app.route('/')
 def index():
     return render_template("index.html")

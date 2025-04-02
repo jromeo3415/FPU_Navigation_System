@@ -38,12 +38,14 @@ calls OSRM docker container to make a route between two points.
 returns route in JSON format.
 '''
 def calcRoute(osrm_ip, coords, profile):
-    request_url = f"{osrm_ip}/route/v1/{profile}/{coords[0]};{coords[1]}" # request to be sent to OSRM
+    request_url = f"http://{osrm_ip}/route/v1/{profile}/{coords[0]};{coords[1]}" # request to be sent to OSRM
 
     try:
         response = requests.get(request_url) # requests send HTTP request to OSRM. This variable holds the JSON response
-        if requests.status_codes == 200:
-            return response # front end (leaflet) prefers JSON format for route
+
+        if response.status_code == 200:
+            response_json = response.json() # going from request object type to json dict
+            return response_json
         else:
             return jsonify({"error": "OSRM request error"}), 400
 
