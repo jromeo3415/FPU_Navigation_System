@@ -123,6 +123,17 @@
         .forgot-password a:hover {
             text-decoration: underline;
         }
+        .disclaimer {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            text-align: center;
+            width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -133,6 +144,9 @@
         </div>
         <div class="login-container">
             <h2>Log in</h2>
+            <div class="disclaimer">
+                <strong>DISCLAIMER:</strong> This is NOT an official Florida Polytechnic University website. DO NOT use your actual floridapoly.edu credentials on this site.
+            </div>
             <form id="loginForm">
             <div class="form-group">
                 <input type="text" id="username" name="username" placeholder="Username" required>
@@ -143,6 +157,9 @@
             <button type="submit" class="login-btn">Log in</button>
             <div class="forgot-password">
                 <span>Forgot your password? </span><a href="#" class="reset-link" style="font-weight: bold;">Click here to reset it.</a>
+            </div>
+            <div class="forgot-password">
+                <span>Don't have an account? </span><a href="#" class="reset-link" style="font-weight: bold;">Sign Up!</a>
             </div>
             <div id="errorMessage" class="error-message">Invalid credentials. Please try again.</div>
         </form>
@@ -159,7 +176,7 @@
             
             // Delete this later for when autenthicaton is implemented in the backend
             // Used for testing the login page
-            if (username === 'admin' && password === 'password') {
+            if (username === 'user' && password === 'password') {
                 // Redirect to dashboard on successful login
                 window.location.href = '/dashboard';
             } else {
