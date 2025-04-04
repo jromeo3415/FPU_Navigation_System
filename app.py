@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, send_from_directory
 from flask_cors import CORS
 from flask_mysqldb import MySQL
 import server_utils
@@ -17,6 +17,18 @@ app.config['MYSQL_USER'] = 'joe'
 app.config['MYSQL_PASSWORD'] = '345573'
 app.config['MYSQL_DB'] = 'campus_navigation'
 mysql = MySQL(app)
+
+@app.route('/')
+def index():
+    return send_from_directory('static/html', 'login.html')
+
+@app.route('/dashboard')
+def dashboard():
+    return send_from_directory('static/html', 'dashboard.html')
+
+@app.route('/<path:path>')
+def serve_static(path):
+    return send_from_directory('static', path)
 
 '''
 expects a JSON packet with format;  "key": "key1", "locations": "start", "destination", "profile": "foot".
@@ -42,9 +54,5 @@ def returnRoute():
     # test string below
     #curl -X POST 127.0.0.1:5000/returnRoute -H "Content-Type: application/json" -d '{"key": "1234", "locations": ["IST", "BARC"], "profile": "foot"}'
 
-@app.route('/')
-def index():
-    return render_template("index.html")
-
 if __name__ == '__main__':
-    app.run(debug = True)
+    app.run(debug=True)
