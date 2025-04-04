@@ -1,9 +1,7 @@
 from flask import Flask, render_template, jsonify, request, send_from_directory
 from flask_cors import CORS
 from flask_mysqldb import MySQL
-import server_utils
 from server_utils import check_key, getLocation, calcRoute
-import json
 
 accessKey = 1234 # implementing an access key so users can not query the back end and get to decorator functions. another access key should be received from front end.
 
@@ -20,15 +18,15 @@ mysql = MySQL(app)
 
 @app.route('/')
 def index():
-    return send_from_directory('static/html', 'login.html')
+    return send_from_directory('templates/html', 'login.html')
 
 @app.route('/dashboard')
 def dashboard():
-    return send_from_directory('static/html', 'dashboard.html')
+    return send_from_directory('templates/html', 'dashboard.html')
 
 @app.route('/<path:path>')
 def serve_static(path):
-    return send_from_directory('static', path)
+    return send_from_directory('templates', path)
 
 '''
 expects a JSON packet with format;  "key": "key1", "locations": "start", "destination", "profile": "foot".
