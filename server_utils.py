@@ -26,6 +26,7 @@ def getLocation(sql, dictionary):
         clean_tuple = (coords_tuple[0].replace(", ", ","), coords_tuple[1].replace(", ", ","))
         #print(clean_tuple[0])
         #print(clean_tuple[1])
+        cursor.close()
         return clean_tuple
 
     except Exception as e:
@@ -51,3 +52,39 @@ def calcRoute(osrm_ip, coords, profile):
 
     except requests.exceptions.RequestException as e:
         return jsonify({"error": f"RequestException: {str(e)}"})
+
+'''
+Takes MySQL object and tuple of filters to apply. These filters must have the exact same name as the column names
+in the database. Returns final JSON object to be returned as a response in main.
+'''
+def applyFilter(sql, filters):
+    try:
+        num_filters = len(filters) # counting number of filters
+
+        if num_filters == 0:
+            return jsonify({"error": "No filters selected"}), 400
+
+        cursor = sql.connection.cursor()
+
+        if num_filters == 1: #  simpler query when there is only one filter
+            db_query = f"select name from locations where {filters[0]} = 1"
+
+        elif num_filters > 1: # adding all filters properly when there are multiple
+            db_query = "select name from locations where "
+            for x in range(num_filters):
+                if x == 0: # first element does not need an "and"
+                    db_query += f"{filters[x]} "
+
+                else:
+                    db_query += f"and {filters[x]}" # ensuring "and" is included for filters after the first one
+
+        cursor.execute(db_query)
+        filtered_locations = cursor.fetchall() # storing query results
+        cursor.close()
+        return jsonify(filtered_locations), 200 # casting results to json and returning
+
+    except Exception as e:
+        print("ERROR!!!")
+        err_message = str(e)
+
+        return jsonify({"error": f"An error occurred while fetching filtered locations: {err_message}"}), 400

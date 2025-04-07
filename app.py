@@ -1,7 +1,7 @@
 from flask import Flask, render_template, jsonify, request, send_from_directory
 from flask_cors import CORS
 from flask_mysqldb import MySQL
-from server_utils import check_key, getLocation, calcRoute
+from server_utils import check_key, getLocation, calcRoute, applyFilter
 
 accessKey = 1234 # implementing an access key so users can not query the back end and get to decorator functions. another access key should be received from front end.
 
@@ -29,7 +29,7 @@ def serve_static(path):
     return send_from_directory('templates', path)
 
 '''
-expects a JSON packet with format;  "key": "key1", "locations": "start", "destination", "profile": "foot".
+expects a JSON packet with format;  "key": "key1", "locations": "start", "destination", "profile": "foot"
 start and destination will be the start and destination's names respectively, in plain text.
 profile is the method of travel, car, foot, or bike.
 this function will turn those strings into coords then those two coords into one route, and send that route back in a JSON response
@@ -50,7 +50,28 @@ def returnRoute():
     return route
 
     # test string below
-    #curl -X POST 127.0.0.1:5000/returnRoute -H "Content-Type: application/json" -d '{"key": "1234", "locations": ["IST", "BARC"], "profile": "foot"}'
+    #   curl -X POST 127.0.0.1:5000/returnRoute -H "Content-Type: application/json" -d '{"key": "1234", "locations": ["IST", "BARC"], "profile": "foot"}'
+
+'''
+expects a JSON packet with the format: "key": "key1", "filters": "filter1", "filter2", "filterN" and so on
+Content of filter header will have the filtered requirement, for example, "has_bathroom"
+These filter requirements must match their format in the database.
+Function will return a JSON reply with locations that match the filter.
+'''
+@app.route('/returnFiltered', methods=['POST'])
+def returnFiltered():
+    request_dict = request.get_json() # casting response object to python dictionary
+
+    if not request_dict:
+        return jsonify({"error": "Request contents not received"}), 400
+
+    check_key(request_dict["key"], accessKey) # checking access key
+
+    filtered_locations = applyFilter(mysql, request_dict["filters"])
+    return filtered_locations
+
+    #   curl -X POST 127.0.0.1:5000/returnFiltered -H "Content-Type: application/json" -d '{"key": "1234", "filters": ["has_bathroom", "dorm"]}'
+
 
 if __name__ == '__main__':
     app.run(debug=True)
