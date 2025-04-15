@@ -13,6 +13,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize the map
     map = L.map('map').setView(fpuCoordinates, initialZoom);
     
+    // Dispatch event that map is initialized so other scripts can access it
+    window.leafletMap = map;
+    window.dispatchEvent(new CustomEvent('map:initialized', { detail: { map: map } }));
+    
     // Add OpenStreetMap tile layer
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',

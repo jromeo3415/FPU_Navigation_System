@@ -171,6 +171,26 @@
         .apply-filters-btn:hover {
             background-color: #5a0b9d;
         }
+        .locations-list {
+            margin-top: 15px;
+            max-height: calc(100vh - 250px);
+            overflow-y: auto;
+        }
+        .location-item {
+            padding: 10px;
+            border-bottom: 1px solid #6a0dad;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .location-item:hover {
+            background-color: #f5f5f5;
+        }
+        .locations-search input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #6a0dad;
+            border-radius: 4px;
+        }
         .directions-form {
             margin-top: 15px;
         }
@@ -264,6 +284,14 @@
                         <button class="search-btn" id="searchBtn" title="Search"><i class="fas fa-search"></i></button>
                         <button class="filter-btn" id="filterBtn" title="Filter"><i class="fas fa-filter"></i></button>
                         <button class="directions-btn" id="directionsBtn" title="Get Directions"><i class="fas fa-route"></i></button>
+                    </div>
+                </div>
+                
+                <div class="sidebar" id="locationsSidebar" style="display: block;">
+                    <div class="sidebar-content">
+                        <h3>Campus Locations</h3>
+                        <div class="locations-list" id="locationsList">
+                        </div>
                     </div>
                 </div>
                 
@@ -364,5 +392,6 @@
     </div>
     <script src="../../static/js/leaflet.js"></script>
     <script src="../../static/js/map.js" type="module"></script>
+    <script src="../../static/js/locations.js"></script>
 </body>
 </html>

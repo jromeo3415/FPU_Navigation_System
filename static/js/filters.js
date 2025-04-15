@@ -8,8 +8,12 @@ function filterFunction(map, markersLayer, accessKey) {
         // Toggle filter sidebar
         if (filtersSidebar.classList.contains('active')) {
             filtersSidebar.classList.remove('active');
+            // Show locations sidebar when filter sidebar is closed
+            document.getElementById('locationsSidebar').style.display = 'block';
         } else {
             filtersSidebar.classList.add('active');
+            // Hide locations sidebar when filter sidebar is opened
+            document.getElementById('locationsSidebar').style.display = 'none';
             // Hide directions sidebar if it's open
             const directionsSidebar = document.getElementById('directionsSidebar');
             directionsSidebar.classList.remove('active');
