@@ -1,4 +1,4 @@
-function filterFunction(map, markersLayer, accessKey) {
+export function filterFunction(map, markersLayer, accessKey) {
     // Get filter sidebar and button
     const filtersSidebar = document.getElementById('filtersSidebar');
     const filterBtn = document.getElementById('filterBtn');
@@ -130,5 +130,3 @@ function filterFunction(map, markersLayer, accessKey) {
         applySelectedFilters
     };
 }
-
-export { filterFunction };

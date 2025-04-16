@@ -231,35 +231,6 @@
             flex: 1;
             height: 100%;
         }
-        .route-instructions {
-            padding: 15px;
-            background: white;
-            border-top: 1px solid #ddd;
-        }
-        .route-content {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        .route-content h3 {
-            margin-bottom: 15px;
-            color: #333;
-            text-align: center;
-        }
-        .route-step {
-            margin-bottom: 10px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #6a0dad;
-        }
-        .route-metrics {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-            padding-top: 15px;
-            border-top: 1px solid #eee;
-        }
-        .metric-item {
-            font-weight: bold;
-        }
     </style>
 </head>
 <body>
@@ -360,34 +331,34 @@
                     <div class="sidebar-content">
                         <h3>Get Directions</h3>
                         <div class="directions-form">
-                            <div class="transport-options">
-                                <div class="transport-option" data-mode="walk">Walk</div>
-                                <div class="transport-option" data-mode="bike">Bike</div>
-                                <div class="transport-option" data-mode="car">Car</div>
+                            <div class="form-group">
+                                <label for="startLocation">Start Location</label>
+                                <select id="startLocation" required>
+                                    <option value="">Select start location</option>
+                                </select>
                             </div>
                             <div class="form-group">
-                                <input type="text" id="startLocation" placeholder="Start Location" required>
+                                <label for="endLocation">Destination</label>
+                                <select id="endLocation" required>
+                                    <option value="">Select destination</option>
+                                </select>
                             </div>
                             <div class="form-group">
-                                <input type="text" id="destination" placeholder="Destination" required>
+                                <label for="transportMode">Transport Mode</label>
+                                <select id="transportMode">
+                                    <option value="foot">Walking</option>
+                                    <option value="bike">Biking</option>
+                                    <option value="car">Driving</option>
+                                </select>
                             </div>
-                            <button class="get-directions-btn" id="getDirectionsBtn">Get Directions</button>
+                            <button class="apply-filters-btn" id="calculateRoute">Calculate Route</button>
+                        </div>
+                        <div id="directionsResults" class="directions-results">
                         </div>
                     </div>
                 </div>
             </div>
             <div id="map"></div>
-        </div>
-        
-        <div class="route-instructions" id="routeInstructions" style="display: none;">
-            <div class="route-content">
-                <h3>Step by Step Directions</h3>
-                <div id="routeSteps"></div>
-                <div class="route-metrics">
-                    <div class="metric-item" id="estimatedTime">Estimated Time: <span>0 min</span></div>
-                    <div class="metric-item" id="distance">Distance: <span>0 miles</span></div>
-                </div>
-            </div>
         </div>
     </div>
     <script src="../../static/js/leaflet.js"></script>

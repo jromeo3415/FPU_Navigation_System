@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Create zooming controls 
     L.Control.HomeAndZoomControl = L.Control.extend({
         options: {
-            position: 'topleft'
+            position: 'topright'
         },
         
         onAdd: function(map) {

@@ -68,6 +68,50 @@ button:disabled {
     animation: spin 1s ease-in-out infinite;
     margin-left: 10px;
 }
-@keyframes spin {
-    to { transform: rotate(360deg); }
+
+.directions-form {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+}
+
+.directions-results {
+    margin-top: 20px;
+    border-top: 1px solid #ddd;
+    padding-top: 15px;
+}
+
+.route-summary {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.route-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.route-instructions h4 {
+    margin-top: 15px;
+    margin-bottom: 10px;
+}
+
+.turn-by-turn-directions p {
+    margin-bottom: 8px;
+    padding-left: 10px;
+    border-left: 3px solid #6a0dad;
+}
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group:last-of-type {
+    margin-bottom: 20px;
+}
+
+#calculateRoute {
+    margin-top: 10px;
+    margin-bottom: 40px;
 }
