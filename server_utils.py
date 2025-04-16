@@ -39,9 +39,21 @@ calls OSRM docker container to make a route between two points.
 returns route in JSON format.
 '''
 def calcRoute(osrm_ip, coords, profile):
-    request_url = f"http://{osrm_ip}/route/v1/{profile}/{coords[0]};{coords[1]}" # request to be sent to OSRM
 
     try:
+        if profile == "car":  # routing different profile's to appropriate docker container, car is port + 1
+            ip, port = osrm_ip.split(':')
+            final_ip = f"{ip}:{int(port) + 1}" # incrementing to achieve appropriate port
+
+        elif profile == "foot": # foot is port + 2
+            ip, port = osrm_ip.split(':')
+            final_ip = f"{ip}:{int(port) + 2}" # incrementing to achieve appropriate port
+
+        elif profile == "bicycle": # bicycle is port specified in osrm_ip from app.py
+            final_ip = osrm_ip
+
+        request_url = f"http://{final_ip}/route/v1/{profile}/{coords[0]};{coords[1]}"  # request to be sent to OSRM
+
         response = requests.get(request_url) # requests send HTTP request to OSRM. This variable holds the JSON response
 
         if response.status_code == 200:
