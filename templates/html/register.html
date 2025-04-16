@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FPU Campus Navigation System - Registration Page</title>
+    <link rel="stylesheet" href="../../static/css/style.css">
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <style>
+        body {
+            display: flex;
+            justify-content:center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+        .register-page {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+        }
+        .register-left {
+            width: 40%;
+            background-color: #6a0dad;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            padding: 20px;
+        }
+        .register-left img {
+            max-width: 90%;
+            width: auto;
+            height: auto;
+            margin-bottom: 0;
+            margin-top: -60px;
+            object-fit: contain;
+            object-position: center;
+            position: relative;
+            z-index: 1;
+        }
+        .register-left h1 {
+            font-size: 2.5rem;
+            margin-top: -90px;
+            margin-bottom: 10px;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+        .register-left p {
+            font-size: 1.2rem;
+            text-align: center;
+        }
+        .register-container {
+            background: white;
+            padding: 40px;
+            width: 60%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .register-container form {
+            width: 80%;
+            max-width: 400px;
+        }
+        .register-container h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+            width: 100%;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+        .register-btn {
+            background-color: #6a0dad;
+            color: white;
+            border: none;
+            padding: 12px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            margin-top: 15px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        .register-btn:hover {
+            background-color: #9370DB;
+        }
+        .error-message {
+            color: #ff6b6b;
+            margin-top: 15px;
+            padding-left: 75px;
+            display: none;
+        }
+        .disclaimer {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            text-align: center;
+            width: 100%;
+        }
+
+    </style>
+</head>
+<body>
+    <div class = "register-page">
+        <div class="register-left">
+            <img src="https://marvel-b1-cdn.bc0a.com/f00000000257950/floridapoly.edu/university-relations/brand/assets/cyan_phoenixlogos-tm-master-cmyk.png" alt="Florida Polytechnic University Logo">
+            <h1>Florida Polytechnic University Navigation System</h1>
+        </div>
+        <div class="register-container">
+            <h2>Registration Page</h2>
+            <div class="disclaimer">
+                <strong>DISCLAIMER:</strong> This is NOT an official Florida Polytechnic University website. DO NOT use your actual floridapoly.edu password on this site.
+            </div>
+            <form id = 'registerForm' method="POST">
+            <div class="form-group">
+                <input type="text" id="first_name" placeholder="First Name" required>
+            </div>
+            <div class="form-group">
+                <input type="text" id="last_name" placeholder="Last Name" required>
+            </div>
+            <div class="form-group">
+                <input type="text" id="username" name="username" placeholder="Username" required>
+            </div>
+            <div class="form-group">
+                <input type="password" id="password" name="password" placeholder="Password" required>
+            </div>
+            <div class ="form-group">
+                <div class="g-recaptcha" data-sitekey = "6LfsDRMrAAAAACrkSmqwQ5sJyQgGVxuo95wPLAqH"></div>
+            </div>
+            <button type="submit" class="register-btn">Register</button>
+            <div class="forgot-password">
+                    <span>Already have an account? </span><a href="{{ url_for('auth.login') }}" class="reset-link" style="font-weight: bold;">Log in</a>
+            </div>
+                <div id = "errorMessage" class = "error-message" style = "display: none;"></div>
+        </form>
+    </div>
+    </div>
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+             // Get form values
+                const first_name = document.getElementById('first_name').value;
+                const last_name = document.getElementById('last_name').value;
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                const recaptchaResponse = grecaptcha.getResponse();
+
+                if(!recaptchaResponse){
+                    document.getElementById('errorMessage').textContent = 'Please complete reCAPTCHA';
+                    document.getElementById('errorMessage').style.display = 'block';
+                    return;
+                }
+                if(password.length < 10){
+                    document.getElementById('errorMessage').textContent = 'Password must be 10 characters';
+                    return;
+                }
+                console.log({
+                    first_name,
+                    last_name,
+                    username,
+                    password,
+                    recaptchaResponse: recaptchaResponse
+                });
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        first_name: first_name,
+                        last_name: last_name,
+                        username: username,
+                        password: password,
+                        recaptcha_response: recaptchaResponse
+                    })
+                });
+                const result = await response.json();
+
+                if(result.success){
+                    window.location.href = result.redirect;
+                }else{
+                    document.getElementById('errorMessage').textContent = result.message || 'Login failed.';
+                    document.getElementById('errorMessage').style.display = 'block';
+                }
+            });
+    </script>
+</body>
+</html>
