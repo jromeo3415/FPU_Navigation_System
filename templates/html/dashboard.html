@@ -6,6 +6,7 @@
     <title>FPU Campus Navigation System - Dashboard</title>
     <link rel="stylesheet" href="../../static/css/leaflet.css" />
     <link rel="stylesheet" href="../../static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         body, html {
             margin: 0;
@@ -49,49 +50,47 @@
         }
         .search-container {
             padding: 15px;
-            background-color: #f0f0f0;
+            background-color: #6a0dad;
             border-bottom: 1px solid #ddd;
             width: 100%;
         }
         .search-bar {
             display: flex;
             width: 100%;
+            border: 2px solid #6a0dad;
+            border-radius: 25px;
+            overflow: hidden;
+            height: 40px;
+            align-items: center;
         }
         .search-input {
             flex: 1;
             padding: 10px 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px 0 0 4px;
+            border: none;
             font-size: 16px;
+            height: 100%;
+            box-sizing: border-box;
+            border-radius: 25px;
+            margin-right: 5px;
         }
-        .search-buttons {
+        .search-btn, .filter-btn, .directions-btn {
+            padding: 8px 10px;
+            color: white;
+            background-color: #6a0dad;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            height: 100%; 
+            box-sizing: border-box;
             display: flex;
-        }
-        .search-btn {
-            padding: 10px 15px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        .filter-btn {
-            padding: 10px 15px;
-            background-color: #2196F3;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 0;
-            font-size: 16px;
-        }
-        .directions-btn {
-            padding: 10px 15px;
-            background-color: #FFC107;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 0 4px 4px 0;
-            font-size: 16px;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            top: 0;
+            width: auto;
+            min-width: 40px;
+            border-radius: 25px;
+            transition: background-color 0.3s ease;
         }
         .main-content {
             display: flex;
@@ -112,33 +111,85 @@
         .sidebar {
             width: 100%;
             background: white;
-            z-index: 1000;
+            z-index: 999;
             overflow-y: auto;
             display: none;
+            position: relative;
+            max-height: calc(100vh - 150px);
         }
         .sidebar.active {
             display: block;
         }
         .sidebar-content {
             padding: 20px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            position: relative;
+            padding-bottom: 70px;
         }
         .sidebar h3 {
             margin-top: 0;
             padding-bottom: 10px;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid #6a0dad;
         }
         .filter-categories {
             list-style: none;
             padding: 0;
-            margin: 0;
+            margin: 0 0 20px 0;
+            flex: 1;
+            overflow-y: auto;
         }
-        .filter-categories li {
+        .filter-item {
             padding: 10px 0;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid #6a0dad;
             cursor: pointer;
+            display: flex;
+            align-items: center;
         }
-        .filter-categories li:hover {
+        .filter-item:hover {
             background-color: #f5f5f5;
+        }
+        .filter-item input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        .apply-filters-btn {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #6a0dad;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: calc(100% - 40px);
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1001;
+            box-shadow: 0 -4px 6px rgba(0,0,0,0.1);
+        }
+        .apply-filters-btn:hover {
+            background-color: #5a0b9d;
+        }
+        .locations-list {
+            margin-top: 15px;
+            max-height: calc(100vh - 250px);
+            overflow-y: auto;
+        }
+        .location-item {
+            padding: 10px;
+            border-bottom: 1px solid #6a0dad;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .location-item:hover {
+            background-color: #f5f5f5;
+        }
+        .locations-search input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #6a0dad;
+            border-radius: 4px;
         }
         .directions-form {
             margin-top: 15px;
@@ -154,13 +205,15 @@
         .form-group select, .form-group input {
             width: 100%;
             padding: 8px;
-            border: 1px solid #ddd;
+
+            border: 1px solid #6a0dad;
             border-radius: 4px;
         }
         .transport-options {
             display: flex;
             margin-bottom: 15px;
-            border: 1px solid #ddd;
+
+            border: 1px solid #6a0dad;
             border-radius: 4px;
             overflow: hidden;
         }
@@ -176,49 +229,11 @@
             background-color: #003366;
             color: white;
         }
-        .get-directions-btn {
-            width: 100%;
-            padding: 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
         #map {
             flex: 1;
             height: 100%;
         }
-        .route-instructions {
-            padding: 15px;
-            background: white;
-            border-top: 1px solid #ddd;
-        }
-        .route-content {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        .route-content h3 {
-            margin-bottom: 15px;
-            color: #333;
-            text-align: center;
-        }
-        .route-step {
-            margin-bottom: 10px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #eee;
-        }
-        .route-metrics {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-            padding-top: 15px;
-            border-top: 1px solid #eee;
-        }
-        .metric-item {
-            font-weight: bold;
-        }
+
     </style>
 </head>
 <body>
@@ -240,10 +255,16 @@
                 <div class="search-container">
                     <div class="search-bar">
                         <input type="text" class="search-input" placeholder="Search for a location..." id="searchInput">
-                        <div class="search-buttons">
-                            <button class="search-btn" id="searchBtn"><i class="fas fa-search"></i></button>
-                            <button class="filter-btn" id="filterBtn"><i class="fas fa-filter"></i></button>
-                            <button class="directions-btn" id="directionsBtn"><i class="fas fa-directions"></i></button>
+                        <button class="search-btn" id="searchBtn" title="Search"><i class="fas fa-search"></i></button>
+                        <button class="filter-btn" id="filterBtn" title="Filter"><i class="fas fa-filter"></i></button>
+                        <button class="directions-btn" id="directionsBtn" title="Get Directions"><i class="fas fa-route"></i></button>
+                    </div>
+                </div>
+                
+                <div class="sidebar" id="locationsSidebar" style="display: block;">
+                    <div class="sidebar-content">
+                        <h3>Campus Locations</h3>
+                        <div class="locations-list" id="locationsList">
                         </div>
                     </div>
                 </div>
@@ -251,19 +272,61 @@
                 <div class="sidebar" id="filtersSidebar">
                     <div class="sidebar-content">
                         <h3>Filter Locations</h3>
-                        <ul class="filter-categories">
-                            <li data-category="academic">Academic Buildings</li>
-                            <li data-category="administration">Administration</li>
-                            <li data-category="security">Campus Security and Safety</li>
-                            <li data-category="recreation">Campus Recreation</li>
-                            <li data-category="dining">Dining Resources</li>
-                            <li data-category="dormitories">Dormitories</li>
-                            <li data-category="health">Health and Wellness</li>
-                            <li data-category="labs">Labs</li>
-                            <li data-category="meeting">Meeting Spaces</li>
-                            <li data-category="parking">Parking Lots</li>
-                            <li data-category="services">Student Services</li>
-                        </ul>
+                        <div class="filter-categories">
+                            <div class="filter-item">
+                                <input type="checkbox" id="academic" data-category="academic">
+                                <label for="academic">Academic Buildings</label>
+                            </div>
+                            <div class="filter-item">
+                                <input type="checkbox" id="campus_safety" data-category="campus_safety">
+                                <label for="campus_safety">Campus Safety</label>
+                            </div>
+                            <div class="filter-item">
+                                <input type="checkbox" id="chem_lab" data-category="chem_lab">
+                                <label for="chem_lab">Chemistry Labs</label>
+                            </div>
+                            <div class="filter-item">
+                                <input type="checkbox" id="computer_lab" data-category="computer_lab">
+                                <label for="computer_lab">Computer Labs</label>
+                            </div>
+                            <div class="filter-item">
+                                <input type="checkbox" id="dining" data-category="dining">
+                                <label for="dining">Dining</label>
+                            </div>
+                            <div class="filter-item">
+                                <input type="checkbox" id="dorm" data-category="dorm">
+                                <label for="dorm">Dormitories</label>
+                            </div>
+                            <div class="filter-item">
+                                <input type="checkbox" id="has_bathroom" data-category="has_bathroom">
+                                <label for="has_bathroom">Bathrooms</label>
+                            </div>
+                            <div class="filter-item">
+                                <input type="checkbox" id="parking" data-category="parking">
+                                <label for="parking">Parking</label>
+                            </div>
+                            <div class="filter-item">
+                                <input type="checkbox" id="physics_lab" data-category="physics_lab">
+                                <label for="physics_lab">Physics Labs</label>
+                            </div>
+                            <div class="filter-item">
+                                <input type="checkbox" id="printer" data-category="printer">
+                                <label for="printer">Printers</label>
+                            </div>
+                            <div class="filter-item">
+                                <input type="checkbox" id="printer_3d" data-category="printer_3d">
+                                <label for="printer_3d">3D Printers</label>
+                            </div>
+                            <div class="filter-item">
+                                <input type="checkbox" id="study_room" data-category="study_room">
+                                <label for="study_room">Study Rooms</label>
+                            </div>
+                            <div class="filter-item">
+                                <input type="checkbox" id="vend_machine" data-category="vend_machine">
+                                <label for="vend_machine">Vending Machines</label>
+                            </div>
+                        </div>
+                        <button id="applyFiltersBtn" class="apply-filters-btn">Apply Filters</button>
                     </div>
                 </div>
                 
@@ -271,38 +334,38 @@
                     <div class="sidebar-content">
                         <h3>Get Directions</h3>
                         <div class="directions-form">
-                            <div class="transport-options">
-                                <div class="transport-option" data-mode="walk">Walk</div>
-                                <div class="transport-option" data-mode="bike">Bike</div>
-                                <div class="transport-option" data-mode="car">Car</div>
+                            <div class="form-group">
+                                <label for="startLocation">Start Location</label>
+                                <select id="startLocation" required>
+                                    <option value="">Select start location</option>
+                                </select>
                             </div>
                             <div class="form-group">
-                                <input type="text" id="startLocation" placeholder="Start Location" required>
+                                <label for="endLocation">Destination</label>
+                                <select id="endLocation" required>
+                                    <option value="">Select destination</option>
+                                </select>
                             </div>
                             <div class="form-group">
-                                <input type="text" id="destination" placeholder="Destination" required>
+                                <label for="transportMode">Transport Mode</label>
+                                <select id="transportMode">
+                                    <option value="foot">Walking</option>
+                                    <option value="bike">Biking</option>
+                                    <option value="car">Driving</option>
+                                </select>
                             </div>
-                            <button class="get-directions-btn" id="getDirectionsBtn">Get Directions</button>
+                            <button class="apply-filters-btn" id="calculateRoute">Calculate Route</button>
+                        </div>
+                        <div id="directionsResults" class="directions-results">
                         </div>
                     </div>
                 </div>
             </div>
             <div id="map"></div>
         </div>
-        
-        <div class="route-instructions" id="routeInstructions" style="display: none;">
-            <div class="route-content">
-                <h3>Step by Step Directions</h3>
-                <div id="routeSteps"></div>
-                <div class="route-metrics">
-                    <div class="metric-item" id="estimatedTime">Estimated Time: <span>0 min</span></div>
-                    <div class="metric-item" id="distance">Distance: <span>0 miles</span></div>
-                </div>
-            </div>
-        </div>
     </div>
-
     <script src="../../static/js/leaflet.js"></script>
-    <script src="../../static/js/map.js"></script>
+    <script src="../../static/js/map.js" type="module"></script>
+    <script src="../../static/js/locations.js"></script>
 </body>
 </html>

@@ -79,21 +79,27 @@ def applyFilter(sql, filters):
         cursor = sql.connection.cursor()
 
         if num_filters == 1: #  simpler query when there is only one filter
-            db_query = f"select name from locations where {filters[0]} = 1"
+            db_query = f"select name, coords from locations where {filters[0]} = 1"
 
         elif num_filters > 1: # adding all filters properly when there are multiple
-            db_query = "select name from locations where "
+            db_query = "select name, coords from locations where "
             for x in range(num_filters):
                 if x == 0: # first element does not need an "and"
-                    db_query += f"{filters[x]} "
+                    db_query += f"{filters[x]} = 1"
 
                 else:
-                    db_query += f"and {filters[x]}" # ensuring "and" is included for filters after the first one
+                    db_query += f" or {filters[x]} = 1" # ensuring "or" is included for filters after the first one
 
         cursor.execute(db_query)
         filtered_locations = cursor.fetchall() # storing query results
+        
+        # Convert tuple results to list of [name, coords] pairs
+        location_pairs = []
+        for location in filtered_locations:
+            location_pairs.append([location[0], location[1]])
+            
         cursor.close()
-        return jsonify(filtered_locations), 200 # casting results to json and returning
+        return jsonify(location_pairs), 200 # casting results to json and returning
 
     except Exception as e:
         print("ERROR!!!")

@@ -149,6 +149,7 @@
 	}
 .leaflet-bottom {
 	bottom: 0;
+	z-index: 1001; 
 	}
 .leaflet-left {
 	left: 0;
@@ -414,6 +415,10 @@ svg.leaflet-image-layer.leaflet-interactive path {
 	background: #fff;
 	background: rgba(255, 255, 255, 0.8);
 	margin: 0;
+<<<<<<< HEAD
+=======
+	z-index: 1500; 
+>>>>>>> 497d136ccf08543f570b9bc92029f11ae34c3abd
 	}
 .leaflet-control-attribution,
 .leaflet-control-scale-line {
