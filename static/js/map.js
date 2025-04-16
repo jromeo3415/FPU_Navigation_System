@@ -1,3 +1,4 @@
+
 // Import modules for filters and directions
 import { filterFunction } from './filters.js';
 import { directionFunction } from './directions.js';
@@ -16,13 +17,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // Dispatch event that map is initialized so other scripts can access it
     window.leafletMap = map;
     window.dispatchEvent(new CustomEvent('map:initialized', { detail: { map: map } }));
-    
+
     // Add OpenStreetMap tile layer
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         maxZoom: 19
     }).addTo(map);
-    
+
     // Initialize layers for markers and routes
     markersLayer = L.layerGroup().addTo(map);
     routeLayer = L.layerGroup().addTo(map);

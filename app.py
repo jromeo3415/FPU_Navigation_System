@@ -1,5 +1,3 @@
-# Accidentally deleted the other commits but to summarize, joey did the back end portions including app.py and server_utils.py.
-# He added the filters and the direction functionality.
 from flask import Flask, render_template, jsonify, request, send_from_directory
 from flask_cors import CORS
 from flask_mysqldb import MySQL

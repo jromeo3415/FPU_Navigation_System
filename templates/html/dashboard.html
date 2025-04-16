@@ -8,6 +8,231 @@
     <link rel="stylesheet" href="../../static/css/style.css">
     <link rel="stylesheet" href="../../static/css/dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+        .dashboard-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .header {
+            background-color: white;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo-section {
+            display: flex;
+            align-items: center;
+        }
+        .logo-section img {
+            height: 40px;
+            margin-right: 10px;
+        }
+        .logo-section h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        .account-section a {
+            color: black;
+            text-decoration: none;
+            margin-left: 15px;
+            font-size: 0.9rem;
+        }
+        .account-section a:hover {
+            text-decoration: underline;
+        }
+        .search-container {
+            padding: 15px;
+            background-color: #6a0dad;
+            border-bottom: 1px solid #ddd;
+            width: 100%;
+        }
+        .search-bar {
+            display: flex;
+            width: 100%;
+            border: 2px solid #6a0dad;
+            border-radius: 25px;
+            overflow: hidden;
+            height: 40px;
+            align-items: center;
+        }
+        .search-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: none;
+            font-size: 16px;
+            height: 100%;
+            box-sizing: border-box;
+            border-radius: 25px;
+            margin-right: 5px;
+        }
+        .search-btn, .filter-btn, .directions-btn {
+            padding: 8px 10px;
+            color: white;
+            background-color: #6a0dad;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            height: 100%; 
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            top: 0;
+            width: auto;
+            min-width: 40px;
+            border-radius: 25px;
+            transition: background-color 0.3s ease;
+        }
+        .main-content {
+            display: flex;
+            flex: 1;
+            position: relative;
+            flex-direction: row;
+        }
+        .left-panel {
+            width: 500px;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            background-color: white;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        .sidebar {
+            width: 100%;
+            background: white;
+            z-index: 999;
+            overflow-y: auto;
+            display: none;
+            position: relative;
+            max-height: calc(100vh - 150px);
+        }
+        .sidebar.active {
+            display: block;
+        }
+        .sidebar-content {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            position: relative;
+            padding-bottom: 70px;
+        }
+        .sidebar h3 {
+            margin-top: 0;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #6a0dad;
+        }
+        .filter-categories {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+            flex: 1;
+            overflow-y: auto;
+        }
+        .filter-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #6a0dad;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+        .filter-item:hover {
+            background-color: #f5f5f5;
+        }
+        .filter-item input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        .apply-filters-btn {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #6a0dad;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: calc(100% - 40px);
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1001;
+            box-shadow: 0 -4px 6px rgba(0,0,0,0.1);
+        }
+        .apply-filters-btn:hover {
+            background-color: #5a0b9d;
+        }
+        .locations-list {
+            margin-top: 15px;
+            max-height: calc(100vh - 250px);
+            overflow-y: auto;
+        }
+        .location-item {
+            padding: 10px;
+            border-bottom: 1px solid #6a0dad;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .location-item:hover {
+            background-color: #f5f5f5;
+        }
+        .locations-search input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #6a0dad;
+            border-radius: 4px;
+        }
+        .directions-form {
+            margin-top: 15px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group select, .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #6a0dad;
+            border-radius: 4px;
+        }
+        .transport-options {
+            display: flex;
+            margin-bottom: 15px;
+            border: 1px solid #6a0dad;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .transport-option {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            cursor: pointer;
+            background-color: #f5f5f5;
+            transition: background-color 0.3s;
+        }
+        .transport-option.active {
+            background-color: #003366;
+            color: white;
+        }
+        #map {
+            flex: 1;
+            height: 100%;
+        }
+    </style>
 </head>
 <body>
     <div class="dashboard-container">
