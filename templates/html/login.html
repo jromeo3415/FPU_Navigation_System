@@ -189,6 +189,7 @@
     <script>
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+            document.getElementById('errorMessage').style.display = 'none';
 
             // Get form values
             const username = document.getElementById('username').value;

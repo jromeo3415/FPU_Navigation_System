@@ -149,10 +149,10 @@
                 <input type="password" id="password" name="password" placeholder="Password" required>
             </div>
                 <div class="form-group">
-                <input type="password" id="password" name="confirm_password" placeholder="Confirm Password" required>
+                <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm Password" required>
             </div>
             <div class ="form-group">
-                <div class="g-recaptcha" data-sitekey = "6LfsDRMrAAAAACrkSmqwQ5sJyQgGVxuo95wPLAqH"></div>
+                <div class="g-recaptcha" data-sitekey = "{{ config['RECAPTCHA_PUBLIC_KEY'] }}"></div>
             </div>
             <button type="submit" class="register-btn">Register</button>
             <div class="forgot-password">
@@ -165,7 +165,7 @@
     <script>
         document.getElementById('registerForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
-
+                document.getElementById('errorMessage').style.display = 'none';
              // Get form values
                 const first_name = document.getElementById('first_name').value;
                 const last_name = document.getElementById('last_name').value;

@@ -204,45 +204,61 @@ def login():
     else:
         return jsonify({'success': False, 'message': 'Invalid email or password'})
 
-
-@auth.route('/reset-password/<username>/<token>', methods = ['GET', 'POST'])
-def reset_password(username, token):
-    from app import mysql
-    if not bcrypt.check_password_hash(token, username):
-        return jsonify({'success': False, 'message': 'Invalid email or password.'}), 401
-    if request.method == 'POST':
-        password = request.form.get('password')
-        if len(password) < 10:
-            return jsonify({'success': False, 'message': 'Password must be at least 10 characters.'}), 400
-        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-        cursor = mysql.connection.cursor()
-        cursor.execute("UPDATE users SET password = %s WHERE username = %s", (hashed_password, username))
-        mysql.connection.commit()
-        cursor.close()
-        flash("Your password has been reset.", "success")
-        return redirect(url_for('auth.login'))
-    return render_template('html/forgot-password.html',username=username, token=token)
 @auth.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
     from app import mysql, mail
     if request.method == 'POST':
         data = request.get_json()
         username = data.get('username')
+        #check if florida poly email
         if not username or '@floridapoly.edu' not in username:
             return jsonify({'success': False, 'message': 'Email not found. Please enter a valid Florida Poly Email registered to an account.'}), 400
+
         cursor = mysql.connection.cursor()
         cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
         user = cursor.fetchone()
         cursor.close()
+
         if not user:
             return jsonify({'success': False, 'message': 'Invalid username.'}), 401
 
-        token = bcrypt.generate_password_hash(username).decode('utf-8')
-        reset_link = url_for("auth.reset_password", token=token, _external=True)
+        serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+        token = serializer.dumps(username, salt='email-confirm')
+
+        reset_link = url_for("auth.reset_password", username=username, token=token, _external=True)
+        # Send reset email
         msg = Message('Password reset', recipients=[username])
         msg.body = f'Click link to reset password to {reset_link}'
         mail.send(msg)
         return jsonify({'success': True, 'message': 'Password reset'}), 200
     return render_template('html/forgot-password.html')
+@auth.route('/reset-password/<username>/<token>', methods = ['GET', 'POST'])
+def reset_password(username, token):
+    from app import mysql
+    # Generate token
+    serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+    try:
+        username_from_token = serializer.loads(token, salt='email-confirm', max_age=3600)
+    except SignatureExpired:
+        return jsonify({'success': False, 'message': 'Token expired'}), 401
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 401
 
+    if username != username_from_token:
+        return jsonify({'success': False, 'message': 'Invalid token'}), 401
 
+    if request.method == 'POST':
+        data = request.get_json()
+        password = data.get('password')
+
+        if len(password) < 10:
+            return jsonify({'success': False, 'message': 'Password must be at least 10 characters.'}), 400
+
+        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+
+        cursor = mysql.connection.cursor()
+        cursor.execute("UPDATE users SET password = %s WHERE username = %s", (hashed_password, username))
+        mysql.connection.commit()
+        cursor.close()
+        return jsonify({'success': True, 'message': 'Your password has been reset'}), 200
+    return render_template('html/reset-password.html', username=username, token=token)
