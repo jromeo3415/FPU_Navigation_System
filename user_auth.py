@@ -11,7 +11,7 @@ from flask_wtf.recaptcha import RecaptchaField
 import requests
 from flask_login import LoginManager
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
-
+import MySQLdb
 auth = Blueprint('auth', __name__)
 
 bcrypt = Bcrypt()
@@ -20,8 +20,9 @@ login_manager.login_view = "auth.login"
 
 
 @login_manager.user_loader
-def load_user(sql, user_id):
-    return User.get(sql, user_id)
+def load_user(user_id):
+    from app import mysql
+    return User.get(mysql, user_id)
 
 def logout():
     logout_user()
@@ -33,6 +34,10 @@ class User(UserMixin):
         self.username = username
         self.password = password
         self.email_verified = email_verified
+    def is_active(self):
+        return self.email_verified
+    def get_id(self):
+        return str(self.id)
 
     @staticmethod
     def get(sql, user_id):
@@ -121,7 +126,6 @@ Thank you for creating an account.
 Please verify your email by clicking the link below:
 {verify_link}
 Best regards
-https://floridapolymap.com
 """
         print(verify_link)
         try:
@@ -163,30 +167,38 @@ def email_verification(username, token):
         flash('User not found', 'danger')
     cursor.close()
     return redirect(url_for('auth.login'))
+
+#Route for logging in
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     from app import mysql
+
+    if request.method == 'GET':
+        return render_template('html/login.html')
     data = request.get_json()
-    if not data:
-        return jsonify({'success': False, 'message':'Invalid data format'}), 400
     username = data.get('username')
     password = data.get('password')
-    recaptcha_response = data.get('recaptcha-response')
+    remember_me = data.get('remember_me', False)
+    recaptcha_response = data.get('recaptcha_response')
+
     verify_url = f"https://www.google.com/recaptcha/api/siteverify?secret={current_app.config['RECAPTCHA_SECRET_KEY']}&response={recaptcha_response}"
     response = requests.get(verify_url).json()
 
     if not response.get('success'):
-        return jsonify({'error': 'Invalid email or password.'}), 401
+        return jsonify({'success': False, 'message': 'r/se try again.'}), 401
 
-    cursor = mysql.connection.cursor()
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
     user = cursor.fetchone()
     cursor.close()
+
     if user:
-        if bcrypt.check_password_hash(user['password'], password):
+        if bcrypt.check_password_hash(user['password'],password):
             if not user['email_verified']:
-                return jsonify({'success': False, 'message': 'Please verify your email address'}),
-            return redirect(url_for('dashboard'))
+                return jsonify({'success': False, 'message': 'Please verify your email address'}), 400
+            user_obj = User(user['id'], user['username'], user['password'], user['email_verified'])
+            login_user(user_obj, remember_me)
+            return jsonify({'success': True, 'redirect': '/dashboard'}), 200
         else:
             return jsonify({'success': False, 'message': 'Incorrect password'})
     else:

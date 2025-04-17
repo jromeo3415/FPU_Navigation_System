@@ -9,7 +9,7 @@ from user_auth import auth, bcrypt, login_manager
 from dotenv import load_dotenv
 import os
 
-accessKey = int(os.getenv('ACCESS_KEY')) # implementing an access key so users can not query the back end and get to decorator functions. another access key should be received from front end.
+accessKey = 1234 # implementing an access key so users can not query the back end and get to decorator functions. another access key should be received from front end.
 
 app = Flask(__name__)  # Flask constructor
 
@@ -31,8 +31,9 @@ login_manager.init_app(app)
 load_dotenv()
 
 app.config['MAIL_SERVER'] = 'smtp.mailgun.org'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
 app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
 app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER')
@@ -57,7 +58,7 @@ def getLocation(): # query database for coordinates
 
 @app.route('/')
 def index():
-    return render_template('html/login.html')
+    return redirect('/login')
 
 @app.route('/dashboard')
 @login_required
