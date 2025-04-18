@@ -2,16 +2,18 @@ document.addEventListener('DOMContentLoaded', function() {
     // Access key for backend API calls
     const accessKey = "1234";
     
+    // Variable to track the current marker
+    let currentMarker = null;
+    // Make currentMarker accessible globally
+    window.currentMarker = currentMarker;
+    
     // Function to load all locations
     function loadAllLocations() {
-        console.log('loadAllLocations function called');
         // Prepare data for API call
         const filterData = {
             key: accessKey,
             filters: ["academic", "campus_safety", "chem_lab", "computer_lab", "dining", "dorm", "has_bathroom", "parking"]
         };
-        
-        console.log('Sending request to /returnFiltered with data:', filterData);
         
         // API call to get all locations
         fetch('/returnFiltered', {
@@ -29,7 +31,6 @@ document.addEventListener('DOMContentLoaded', function() {
             return response.json();
         })
         .then(data => {
-            console.log('Received data:', data);
             // Sort locations alphabetically
             data.sort((a, b) => a[0].localeCompare(b[0]));
             
@@ -56,7 +57,6 @@ document.addEventListener('DOMContentLoaded', function() {
         locationsListElement.innerHTML = '';
         
         if (locations && Array.isArray(locations) && locations.length > 0) {
-            console.log('Displaying', locations.length, 'locations');
             locations.forEach(location => {
                 const name = location[0];
                 const coords = location[1];
@@ -80,8 +80,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (window.leafletMap) {
                             window.leafletMap.setView(position, 18);
                             
+                            // Remove previous marker if it exists
+                            if (currentMarker) {
+                                window.leafletMap.removeLayer(currentMarker);
+                            }
+                            
                             // Create marker with default pin icon
-                            const marker = L.marker(position, {
+                            currentMarker = L.marker(position, {
                                 icon: L.icon({
                                     iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
                                     iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
@@ -92,7 +97,9 @@ document.addEventListener('DOMContentLoaded', function() {
                                     shadowSize: [41, 41]
                                 })
                             }).addTo(window.leafletMap);
-                            marker.bindPopup(`<div class="location-popup"><h3>${name}</h3></div>`).openPopup();
+                            currentMarker.bindPopup(`<div class="location-popup"><h3>${name}</h3></div>`).openPopup();
+                            // Update global reference
+                            window.currentMarker = currentMarker;
                         }
                     }
                 });
@@ -140,8 +147,22 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Make map available globally for location item click handlers
-    // We need to wait for the map.js module to initialize the map
     window.addEventListener('map:initialized', function(e) {
         window.leafletMap = e.detail.map;
+    });
+    
+    // Listen for reload:locations event from filters.js
+    window.addEventListener('reload:locations', function() {
+        // Reload all locations when switching back from filters view
+        loadAllLocations();
+        // Remove current marker if it exists
+        if (window.currentMarker) {
+            window.leafletMap.removeLayer(window.currentMarker);
+            window.currentMarker = null;
+        }
+        // Clear route layer when switching to locations view
+        if (window.routeLayer) {
+            window.routeLayer.clearLayers();
+        }
     });
 });

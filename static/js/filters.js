@@ -10,6 +10,10 @@ export function filterFunction(map, markersLayer, accessKey) {
             filtersSidebar.classList.remove('active');
             // Show locations sidebar when filter sidebar is closed
             document.getElementById('locationsSidebar').style.display = 'block';
+            // Clear all markers when switching back to locations view
+            markersLayer.clearLayers();
+            // Trigger reload of all locations
+            window.dispatchEvent(new Event('reload:locations'));
         } else {
             filtersSidebar.classList.add('active');
             // Hide locations sidebar when filter sidebar is opened
@@ -17,6 +21,11 @@ export function filterFunction(map, markersLayer, accessKey) {
             // Hide directions sidebar if it's open
             const directionsSidebar = document.getElementById('directionsSidebar');
             directionsSidebar.classList.remove('active');
+            
+            // Clear route layer when switching to filter view
+            if (window.routeLayer) {
+                window.routeLayer.clearLayers();
+            }
         }
     });
 
@@ -71,11 +80,20 @@ export function filterFunction(map, markersLayer, accessKey) {
     function displayFilteredLocations(locations) {
         // Clear existing markers
         markersLayer.clearLayers();
+        
+        // Clear the current marker if it exists
+        if (window.currentMarker) {
+            window.leafletMap.removeLayer(window.currentMarker);
+            window.currentMarker = null;
+        }
 
         // Check if we have locations
         if (locations && Array.isArray(locations) && locations.length > 0) {
             // Track how many locations we're processing
             let locationCount = 0;
+            
+            // Create a bounds object to track all marker positions
+            const bounds = L.latLngBounds();
             
             // Process each location
             locations.forEach(location => {
@@ -95,6 +113,9 @@ export function filterFunction(map, markersLayer, accessKey) {
                             
                             // Create position array for Leaflet [lat, lng]
                             const position = [lat, lng];
+                            
+                            // Add this position to our bounds
+                            bounds.extend(position);
                             
                             // Create marker with default pin icon
                             const marker = L.marker(position, {
@@ -120,6 +141,15 @@ export function filterFunction(map, markersLayer, accessKey) {
                     console.error(`No coordinates available for ${name}`);
                 }
             });
+            
+            // If bounds have at least one marker, fit the map to those bounds
+            if (bounds.isValid()) {
+                // Make all markers visible
+                window.leafletMap.fitBounds(bounds, {
+                    padding: [50, 50],
+                    maxZoom: 18
+                });
+            }
         } else {
             // No locations found
             console.log('No locations found or invalid response format:', locations);

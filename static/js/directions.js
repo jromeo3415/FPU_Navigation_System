@@ -58,6 +58,20 @@ export function directionFunction(map, routeLayer, accessKey) {
             // Hide filter sidebar if it's open
             const filtersSidebar = document.getElementById('filtersSidebar');
             filtersSidebar.classList.remove('active');
+            
+            // Clear all markers when switching to directions view
+            routeLayer.clearLayers();
+            
+            // Clear markers from filters view
+            if (window.markersLayer) {
+                window.markersLayer.clearLayers();
+            }
+            
+            // Clear current marker from locations view
+            if (window.currentMarker) {
+                window.leafletMap.removeLayer(window.currentMarker);
+                window.currentMarker = null;
+            }
         }
     }
     

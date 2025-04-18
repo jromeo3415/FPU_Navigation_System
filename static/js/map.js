@@ -28,6 +28,10 @@ document.addEventListener('DOMContentLoaded', function() {
     markersLayer = L.layerGroup().addTo(map);
     routeLayer = L.layerGroup().addTo(map);
     
+    // Make layers globally accessible
+    window.markersLayer = markersLayer;
+    window.routeLayer = routeLayer;
+    
     // Create zooming controls 
     L.Control.HomeAndZoomControl = L.Control.extend({
         options: {
