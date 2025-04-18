@@ -137,12 +137,6 @@ export function directionFunction(map, routeLayer, accessKey) {
         // Clear previous route
         routeLayer.clearLayers();
         
-        // Validate inputs
-        if (!startLocation || !endLocation) {
-            showDirectionsError('Please select both start and end locations.');
-            return;
-        }
-        
         // Get selected transport mode
         const profile = transportModeSelect.value;
         
@@ -420,11 +414,12 @@ export function directionFunction(map, routeLayer, accessKey) {
     // Show error message in the directions panel
     function showDirectionsError(message) {
         console.log(message);
+        directionsResultsDiv.style.display = 'block';
         directionsResultsDiv.innerHTML = `<p>${message}</p>`;
     }
     
     // Polyline decoder function for OSRM encoded geometries
-    // Source: Google Maps JavaScript API v3 documentation
+    // Source: https://github.com/mapbox/polyline/blob/master/src/polyline.js
     function decodePolyline(encoded) {
         let points = [];
         let index = 0, lat = 0, lng = 0;

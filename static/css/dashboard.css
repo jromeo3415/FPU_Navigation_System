@@ -162,9 +162,7 @@ body, html {
     background-color: #5a0b9d;
 }
 .locations-list {
-    margin-top: 15px;
-    max-height: calc(100vh - 250px);
-    overflow-y: auto;
+    margin-top: 10px;
 }
 .location-item {
     padding: 10px;
@@ -326,9 +324,6 @@ body, html {
     border-bottom: 1px solid #eee;
     border-radius: 6px;
     transition: background-color 0.2s ease;
-}
-.direction-step:hover {
-    background-color: #f5f0ff;
 }
 .direction-step i {
     margin-right: 12px;

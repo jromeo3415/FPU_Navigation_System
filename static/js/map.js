@@ -1,4 +1,3 @@
-
 // Import modules for filters and directions
 import { filterFunction } from './filters.js';
 import { directionFunction } from './directions.js';
