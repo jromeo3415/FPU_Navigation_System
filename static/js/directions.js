@@ -23,6 +23,11 @@ export function directionFunction(map, routeLayer, accessKey) {
             calculateRouteBtn.addEventListener('click', calculateRoute);
         }
         
+        // Initially hide the directions results container
+        if (directionsResultsDiv) {
+            directionsResultsDiv.style.display = 'none';
+        }
+        
         // Listen for location selection changes
         if (startLocationInput) {
             startLocationInput.addEventListener('change', function() {
@@ -56,8 +61,8 @@ export function directionFunction(map, routeLayer, accessKey) {
         }
     }
     
-    // Populate location dropdowns with available locations
-    function populateLocationDropdowns() {
+    // Fetch locations data from API
+    function fetchLocations(callback) {
         // Prepare data for API call to get all locations
         const filterData = {
             key: accessKey,
@@ -65,7 +70,7 @@ export function directionFunction(map, routeLayer, accessKey) {
         };
         
         // API call to get all locations
-        fetch('/returnFiltered', {
+        return fetch('/returnFiltered', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -81,7 +86,17 @@ export function directionFunction(map, routeLayer, accessKey) {
         .then(data => {
             // Sort locations alphabetically
             data.sort((a, b) => a[0].localeCompare(b[0]));
-            
+            return data;
+        })
+        .catch(error => {
+            console.error('Error fetching locations:', error);
+            return [];
+        });
+    }
+    
+    // Populate location dropdowns with locations from database
+    function populateLocationDropdowns() {
+        fetchLocations().then(data => {
             // Clear existing options
             startLocationInput.innerHTML = '<option value="">Select start location</option>';
             endLocationInput.innerHTML = '<option value="">Select destination</option>';
@@ -100,9 +115,6 @@ export function directionFunction(map, routeLayer, accessKey) {
                 endOption.textContent = name;
                 endLocationInput.appendChild(endOption);
             });
-        })
-        .catch(error => {
-            console.error('Error fetching locations for directions:', error);
         });
     }
     
@@ -113,7 +125,7 @@ export function directionFunction(map, routeLayer, accessKey) {
         
         // Validate inputs
         if (!startLocation || !endLocation) {
-            showDirectionsError('Please select both start and end locations');
+            showDirectionsError('Please select both start and end locations.');
             return;
         }
         
@@ -162,7 +174,7 @@ export function directionFunction(map, routeLayer, accessKey) {
         
         // Check if route data is valid
         if (!routeData.routes || routeData.routes.length === 0) {
-            showDirectionsError('No route found between these locations');
+            showDirectionsError('No route found between these locations.');
             return;
         }
         
@@ -180,49 +192,67 @@ export function directionFunction(map, routeLayer, accessKey) {
             opacity: 0.7
         }).addTo(routeLayer);
         
-        // Get start and end coordinates from the decoded path
-        const startCoords = decodedPath[0];
-        const endCoords = decodedPath[decodedPath.length - 1];
+        let startCoords, endCoords;
         
-        // Create green pin for start location
-        const startMarker = L.marker(startCoords, {
-            icon: L.icon({
-                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
-                shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
-                iconSize: [25, 41],
-                iconAnchor: [12, 41],
-                popupAnchor: [1, -34],
-                shadowSize: [41, 41]
-            })
-        }).addTo(routeLayer);
-        startMarker.bindPopup(`<b>Start:</b> ${startLocation}`);
-        
-        // Create red pin for end location
-        const endMarker = L.marker(endCoords, {
-            icon: L.icon({
-                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-                shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
-                iconSize: [25, 41],
-                iconAnchor: [12, 41],
-                popupAnchor: [1, -34],
-                shadowSize: [41, 41]
-            })
-        }).addTo(routeLayer);
-        endMarker.bindPopup(`<b>Destination:</b> ${endLocation}`);
-        
-        // Fit the map to the route bounds and display route info
-        map.fitBounds(routePath.getBounds());
-        displayRouteInfo(route);
+        // Use the reusable fetchLocations function to get location data
+        fetchLocations().then(data => {
+            // Find the coordinates for the selected start and end locations
+            const startLocationData = data.find(location => location[0] === startLocation);
+            const endLocationData = data.find(location => location[0] === endLocation);
+            
+            if (startLocationData && startLocationData[1] && endLocationData && endLocationData[1]) {
+                // Parse the coordinates (stored as 'long,lat' in the database)
+                const startCoordParts = startLocationData[1].split(',');
+                const endCoordParts = endLocationData[1].split(',');
+                
+                if (startCoordParts.length === 2 && endCoordParts.length === 2) {
+                    // Create position arrays for Leaflet [lat, lng]
+                    startCoords = [parseFloat(startCoordParts[1]), parseFloat(startCoordParts[0])];
+                    endCoords = [parseFloat(endCoordParts[1]), parseFloat(endCoordParts[0])];
+                    
+                    // Create green pin for start location
+                    const startMarker = L.marker(startCoords, {
+                        icon: L.icon({
+                            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+                            shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
+                            iconSize: [25, 41],
+                            iconAnchor: [12, 41],
+                            popupAnchor: [1, -34],
+                            shadowSize: [41, 41]
+                        })
+                    }).addTo(routeLayer);
+                    startMarker.bindPopup(`<b>Start:</b> ${startLocation}`);
+                    
+                    // Create red pin for end location
+                    const endMarker = L.marker(endCoords, {
+                        icon: L.icon({
+                            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                            shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
+                            iconSize: [25, 41],
+                            iconAnchor: [12, 41],
+                            popupAnchor: [1, -34],
+                            shadowSize: [41, 41]
+                        })
+                    }).addTo(routeLayer);
+                    endMarker.bindPopup(`<b>Destination:</b> ${endLocation}`);
+                }
+            }
+            // Fit the map to the route bounds and display route info
+            map.fitBounds(routePath.getBounds());
+            displayRouteInfo(route);
+        }).catch(error => {
+            console.error('Error fetching location coordinates:', error);
+        });
     }
     
     // Display route information in the directions panel
     function displayRouteInfo(route) {
-        // Convert distance to miles
+        // Format estimated distance and time
         const distance = (route.distance * 0.000621371).toFixed(2); 
-        
-        // Format duration
         const durationMinutes = Math.floor(route.duration / 60);
-        const durationSeconds = Math.floor(route.duration % 60);
+        
+        // Make sure the directions results container is visible
+        directionsResultsDiv.style.display = 'block';
         
         // Create HTML for route summary
         let html = `
@@ -232,7 +262,7 @@ export function directionFunction(map, routeLayer, accessKey) {
                         <i class="fas fa-road"></i> ${distance} mi
                     </div>
                     <div class="route-duration">
-                        <i class="fas fa-clock"></i> ${durationMinutes}m ${durationSeconds}s
+                        <i class="fas fa-clock"></i> ${durationMinutes} min
                     </div>
                 </div>
                 <div class="route-instructions">
@@ -249,17 +279,64 @@ export function directionFunction(map, routeLayer, accessKey) {
                 if (leg.steps && leg.steps.length > 0) {
                     leg.steps.forEach((step, stepIndex) => {
                         let instruction = '';
-                        let distance = '';
+                        let distanceText = '';
+                        let iconUrl = '';
                         
-                        // Format distance for this step if available
+                        // Format distance for this step
                         if (step.distance) {
                             const stepDistance = step.distance;
-                            if (stepDistance >= 1000) {
-                                distance = ` for ${(stepDistance * 0.000621371).toFixed(1)} miles`;
-                            } else if (stepDistance > 100) {
-                                distance = ` for ${Math.round(stepDistance * 3.28084)} feet`;
+                            // Display distance in meters
+                            distanceText = `<span class="step-distance">${Math.round(stepDistance)} m</span>`;
+                        }
+                        
+                        // Determine which Mapbox direction icon to use based on maneuver type and modifier
+                        if (step.maneuver && step.maneuver.type) {
+                            const type = step.maneuver.type;
+                            const modifier = step.maneuver.modifier || '';
+                            
+                            switch(type) {
+                                case 'depart':
+                                    iconUrl = 'https://github.com/mapbox/directions-icons/blob/master/src/png/dark/direction_depart.png?raw=true';
+                                    break;
+                                case 'arrive':
+                                    iconUrl = 'https://github.com/mapbox/directions-icons/blob/master/src/png/dark/direction_arrive.png?raw=true';
+                                    break;
+                                case 'turn':
+                                    if (modifier === 'left') {
+                                        iconUrl = 'https://github.com/mapbox/directions-icons/blob/master/src/png/dark/direction_turn_left.png?raw=true';
+                                    } else if (modifier === 'right') {
+                                        iconUrl = 'https://github.com/mapbox/directions-icons/blob/master/src/png/dark/direction_turn_right.png?raw=true';
+                                    } else if (modifier === 'slight left') {
+                                        iconUrl = 'https://github.com/mapbox/directions-icons/blob/master/src/png/dark/direction_turn_slight_left.png?raw=true';
+                                    } else if (modifier === 'slight right') {
+                                        iconUrl = 'https://github.com/mapbox/directions-icons/blob/master/src/png/dark/direction_turn_slight_right.png?raw=true';
+                                    } else if (modifier === 'sharp left') {
+                                        iconUrl = 'https://github.com/mapbox/directions-icons/blob/master/src/png/dark/direction_turn_sharp_left.png?raw=true';
+                                    } else if (modifier === 'sharp right') {
+                                        iconUrl = 'https://github.com/mapbox/directions-icons/blob/master/src/png/dark/direction_turn_sharp_right.png?raw=true';
+                                    } else {
+                                        iconUrl = 'https://github.com/mapbox/directions-icons/blob/master/src/png/dark/direction_turn.png?raw=true';
+                                    }
+                                    break;
+                                case 'continue':
+                                    iconUrl = 'https://github.com/mapbox/directions-icons/blob/master/src/png/dark/direction_continue.png?raw=true';
+                                    break;
+                                case 'merge':
+                                    iconUrl = 'https://github.com/mapbox/directions-icons/blob/master/src/png/dark/direction_merge.png?raw=true';
+                                    break;
+                                case 'roundabout':
+                                    iconUrl = 'https://github.com/mapbox/directions-icons/blob/master/src/png/dark/direction_roundabout.png?raw=true';
+                                    break;
+                                case 'uturn':
+                                    iconUrl = 'https://github.com/mapbox/directions-icons/blob/master/src/png/dark/direction_uturn.png?raw=true';
+                                    break;
+                                default:
+                                    iconUrl = 'https://github.com/mapbox/directions-icons/blob/master/src/png/dark/direction_continue.png?raw=true';
                             }
                         }
+                        
+                        // Create the icon HTML if we have an icon URL
+                        const iconHtml = iconUrl ? `<img src="${iconUrl}" class="direction-icon" alt="Direction" width="24" height="24">` : '';
                         
                         if (step.maneuver && step.maneuver.instruction) {
                             instruction = step.maneuver.instruction;
@@ -272,7 +349,7 @@ export function directionFunction(map, routeLayer, accessKey) {
                                     instruction = `Start at ${startLocation}.`;
                                     break;
                                 case 'arrive':
-                                    instruction = `Arrive at ${endLocation} (destination${step.maneuver.modifier === 'right' ? ' will be on the right' : step.maneuver.modifier === 'left' ? ' will be on the left' : ''}).`;
+                                    instruction = `Arrive at ${endLocation}.`;
                                     break;
                                 case 'turn':
                                     if (step.maneuver.modifier) {
@@ -286,7 +363,7 @@ export function directionFunction(map, routeLayer, accessKey) {
                                     instruction += '.';
                                     break;
                                 case 'continue':
-                                    instruction = `Continue straight${distance}`;
+                                    instruction = `Continue straight`;
                                     if (step.name && step.name.length > 0) {
                                         instruction += ` on ${step.name}`;
                                     }
@@ -310,12 +387,13 @@ export function directionFunction(map, routeLayer, accessKey) {
                                     instruction += '.';
                             }
                         } else if (step.name) {
-                            instruction = `Continue on ${step.name}${distance}.`;
+                            instruction = `Continue on ${step.name}.`;
                         } else {
-                            instruction = `Continue straight${distance}.`;
+                            instruction = `Continue straight.`;
                         }
                         
-                        html += `<p>${instruction}</p>`;
+                        // Combine icon, instruction, and distance into a single line
+                        html += `<p class="direction-step">${iconHtml} ${instruction} ${distanceText}</p>`;
                         hasInstructions = true;
                     });
                 }
@@ -323,6 +401,12 @@ export function directionFunction(map, routeLayer, accessKey) {
         }
         // Update the directions results div
         directionsResultsDiv.innerHTML = html;
+    }
+
+    // Show error message in the directions panel
+    function showDirectionsError(message) {
+        console.log(message);
+        directionsResultsDiv.innerHTML = `<p>${message}</p>`;
     }
     
     // Polyline decoder function for OSRM encoded geometries

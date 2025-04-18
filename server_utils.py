@@ -52,7 +52,8 @@ def calcRoute(osrm_ip, coords, profile):
         elif profile == "bicycle": # bicycle is port specified in osrm_ip from app.py
             final_ip = osrm_ip
 
-        request_url = f"http://{final_ip}/route/v1/{profile}/{coords[0]};{coords[1]}"  # request to be sent to OSRM
+        # Add parameters for step-by-step directions
+        request_url = f"http://{final_ip}/route/v1/{profile}/{coords[0]};{coords[1]}?steps=true&geometries=polyline&overview=full"  # request to be sent to OSRM
 
         response = requests.get(request_url) # requests send HTTP request to OSRM. This variable holds the JSON response
  
