@@ -1,7 +1,13 @@
-from flask import Flask, render_template, jsonify, request, send_from_directory
+from flask import Flask, render_template, jsonify, request, redirect, url_for, send_from_directory
+from flask_mail import Mail
 from flask_cors import CORS
+from flask_login import login_required, logout_user
 from flask_mysqldb import MySQL
-from server_utils import check_key, getLocation, calcRoute, applyFilter
+import server_utils
+import json
+from user_auth import auth, bcrypt, login_manager
+from dotenv import load_dotenv
+import os
 
 accessKey = 1234 # implementing an access key so users can not query the back end and get to decorator functions. another access key should be received from front end.
 
@@ -10,20 +16,49 @@ app = Flask(__name__)  # Flask constructor
 
 CORS(app)
 
-app.config['MYSQL_HOST'] = '100.83.147.89'
-app.config['MYSQL_USER'] = 'joe'
-app.config['MYSQL_PASSWORD'] = '345573'
-app.config['MYSQL_DB'] = 'campus_navigation'
+app.config['MYSQL_HOST'] = os.getenv('MYSQL_HOST')
+app.config['MYSQL_USER'] = os.getenv('MYSQL_USER')
+app.config['MYSQL_PASSWORD'] = os.getenv('MYSQL_PASSWORD')
+app.config['MYSQL_DB'] = os.getenv('MYSQL_DB')
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+
 mysql = MySQL(app)
+
+app.config['RECAPTCHA_PUBLIC_KEY'] = os.getenv('RECAPTCHA_PUBLIC_KEY')
+app.config['RECAPTCHA_SECRET_KEY'] = os.getenv('RECAPTCHA_SECRET_KEY')
+
+bcrypt.init_app(app)
+login_manager.init_app(app)
+
+load_dotenv()
+
+app.config['MAIL_SERVER'] = 'smtp.mailgun.org'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER')
+mail = Mail(app)
+
+app.register_blueprint(auth, url_prefix='')
 
 @app.route('/')
 def index():
-    return send_from_directory('templates/html', 'login.html')
+    return redirect('/login')
 
 @app.route('/dashboard')
+@login_required
 def dashboard():
-    return send_from_directory('templates/html', 'dashboard.html')
+    return render_template('html/dashboard.html')
 
+@app.route('/logout', methods=['GET', 'POST'])
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('auth.login'))
+
+# need to remove following decorator and function
 @app.route('/<path:path>')
 def serve_static(path):
     return send_from_directory('templates', path)
@@ -34,7 +69,6 @@ start and destination will be the start and destination's names respectively, in
 profile is the method of travel, car, foot, or bike.
 this function will turn those strings into coords then those two coords into one route, and send that route back in a JSON response
 '''
-
 @app.route('/returnRoute', methods=['POST'])
 def returnRoute():
     request_dict = request.get_json() # converting JSON request to a Python dictionary
@@ -71,7 +105,6 @@ def returnFiltered():
     return filtered_locations
 
     #   curl -X POST 127.0.0.1:5000/returnFiltered -H "Content-Type: application/json" -d '{"key": "1234", "filters": ["has_bathroom", "dorm"]}'
-
 
 if __name__ == '__main__':
     app.run(debug=True)

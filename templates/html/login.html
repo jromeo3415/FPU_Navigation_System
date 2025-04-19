@@ -6,6 +6,7 @@
     <title>FPU Campus Navigation System - Login</title>
     <link rel="stylesheet" href="../../static/css/style.css">
     <link rel="stylesheet" href="../../static/css/login.css">
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
     <div class="login-page">
@@ -18,43 +19,71 @@
             <div class="disclaimer">
                 <strong>DISCLAIMER:</strong> This is NOT an official Florida Polytechnic University website. DO NOT use your actual floridapoly.edu password on this site.
             </div>
-            <form id="loginForm">
-            <div class="form-group">
-                <input type="text" id="username" name="username" placeholder="Username" required>
-            </div>
-            <div class="form-group">
-                <input type="password" id="password" name="password" placeholder="Password" required>
-            </div>
-            <button type="submit" class="login-btn">Log in</button>
-            <div class="forgot-password">
-                <span>Forgot your password? </span><a href="#" class="reset-link" style="font-weight: bold;">Click here to reset it.</a>
-            </div>
-            <div class="forgot-password">
-                <span>Don't have an account? </span><a href="#" class="reset-link" style="font-weight: bold;">Sign Up!</a>
-            </div>
-            <div id="errorMessage" class="error-message">Invalid credentials. Please try again.</div>
-        </form>
+            <form id="loginForm" method="POST" action="/login">
+                <div class="form-group">
+                    <input type="text" id="username" name="username" placeholder="Username" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="password" name="password" placeholder="Password" required>
+                </div>
+                <div class ="form-group">
+                    <div class="g-recaptcha" data-sitekey = "{{ config['RECAPTCHA_PUBLIC_KEY'] }}"></div>
+                </div>
+                <div class="remember-me">
+                    <label><input type="checkbox" id="remember_me" name="remember_me">Remember Me </label>
+                </div>
+                <button type="submit" class="login-btn">Log in</button>
+                <div class="forgot-password">
+                    <span>Forgot your password? </span><a href="{{ url_for('auth.forgot_password') }}" class="reset-link" style="font-weight: bold;">Click here to reset it.</a>
+                </div>
+                <div class="forgot-password">
+                    <span>Don't have an account? </span><a href="{{ url_for('auth.register') }}" class="reset-link" style="font-weight: bold;">Sign Up!</a>
+                </div>
+                <div id="errorMessage" class="error-message">Invalid credentials. Please try again.</div>
+            </form>
     </div>
     </div>
 
     <script>
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
+            document.getElementById('errorMessage').style.display = 'none';
+
             // Get form values
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-            
-            // Delete this later for when autenthicaton is implemented in the backend
-            // Used for testing the login page
-            if (username === 'user' && password === 'password') {
-                // Redirect to dashboard on successful login
-                window.location.href = '/dashboard';
-            } else {
-                // Show error message
-                document.getElementById('errorMessage').textContent = 'Invalid credentials. Please try again.';
+            const remember_me = document.getElementById('remember_me').checked;
+            const recaptchaResponse = grecaptcha.getResponse();
+
+            if(!recaptchaResponse){
+                document.getElementById('errorMessage').textContent = 'Please complete reCAPTCHA';
                 document.getElementById('errorMessage').style.display = 'block';
+                return;
             }
+            const data = {
+                    username: username,
+                    password: password,
+                    remember_me: remember_me,
+                    'recaptcha_response': recaptchaResponse
+                };
+            console.log(data)
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+
+                if(result.success){
+                    window.location.href = '/dashboard';
+                }else{
+                    document.getElementById('errorMessage').textContent = result.message || 'Login failed.';
+                    document.getElementById('errorMessage').style.display = 'block';
+
+                    grecaptcha.reset();
+                }
         });
     </script>
 </body>

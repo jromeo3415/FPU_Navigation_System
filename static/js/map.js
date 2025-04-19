@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.leafletMap = map;
     window.dispatchEvent(new CustomEvent('map:initialized', { detail: { map: map } }));
 
+
     // Add OpenStreetMap tile layer
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -87,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add the custom control to the map
     new L.Control.HomeAndZoomControl().addTo(map);
     map.zoomControl.remove();
-    
+
     // Make sure the map container is visible
     const mapContainer = document.getElementById('map');
     if (mapContainer) {

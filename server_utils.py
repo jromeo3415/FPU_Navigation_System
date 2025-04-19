@@ -56,13 +56,13 @@ def calcRoute(osrm_ip, coords, profile):
         request_url = f"http://{final_ip}/route/v1/{profile}/{coords[0]};{coords[1]}?steps=true&geometries=polyline&overview=full"  # request to be sent to OSRM
 
         response = requests.get(request_url) # requests send HTTP request to OSRM. This variable holds the JSON response
- 
+
         if response.status_code == 200:
             response_json = response.json() # going from request object type to json dict
             return response_json
         else:
             return jsonify({"error": "OSRM request error"}), 400
- 
+
     except requests.exceptions.RequestException as e:
         return jsonify({"error": f"RequestException: {str(e)}"})
 
