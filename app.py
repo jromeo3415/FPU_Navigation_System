@@ -3,7 +3,7 @@ from flask_mail import Mail
 from flask_cors import CORS
 from flask_login import login_required, logout_user
 from flask_mysqldb import MySQL
-import server_utils
+from server_utils import calcRoute, getLocation, check_key, applyFilter
 import json
 from user_auth import auth, bcrypt, login_manager
 from dotenv import load_dotenv
