@@ -108,7 +108,7 @@ def register():
         cursor.execute("""
             INSERT INTO users (username, password, first_name, last_name, email_verified)
             VALUES (%s, %s, %s, %s, %s)
-        """,(username, hashed_password, first_name, last_name, False))
+        """,(username, hashed_password, first_name, last_name, 0))
         mysql.connection.commit()
         cursor.close()
         #Generate token
@@ -185,7 +185,7 @@ def login():
     response = requests.get(verify_url).json()
 
     if not response.get('success'):
-        return jsonify({'success': False, 'message': 'r/se try again.'}), 401
+        return jsonify({'success': False, 'message': 'Please try again.'}), 401
 
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
