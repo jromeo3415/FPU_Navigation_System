@@ -152,11 +152,11 @@ def email_verification(username, token):
     if verified_username != username:
         flash('Token does not match','danger')
         return redirect(url_for('auth.login'))
-    cursor = mysql.connection.cursor()
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute("SELECT email_verified FROM users WHERE username = %s", (username,))
     user = cursor.fetchone()
     if user:
-        email_verified = user[0]
+        email_verified = user['email_verified']
         if email_verified == 0:
             cursor.execute("UPDATE users SET email_verified = 1 WHERE username = %s", (username,))
             mysql.connection.commit()
