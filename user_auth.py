@@ -152,23 +152,20 @@ def email_verification(username, token):
     if verified_username != username:
         flash('Token does not match','danger')
         return redirect(url_for('auth.login'))
-    try:
-        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        cursor.execute("SELECT email_verified FROM users WHERE username = %s", (username,))
-        user = cursor.fetchone()
-        if user:
-            email_verified = user['email_verified']
-            if email_verified == 0:
-                cursor.execute("UPDATE users SET email_verified = 1 WHERE username = %s", (username,))
-                mysql.connection.commit()
-                flash("Your email has been verified",'success')
-            else:
-                flash("Your email is already verified", 'info')
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute("SELECT email_verified FROM users WHERE username = %s", (username,))
+    user = cursor.fetchone()
+    if user:
+        email_verified = user['email_verified']
+        if email_verified == 0:
+            cursor.execute("UPDATE users SET email_verified = 1 WHERE username = %s", (username,))
+            mysql.connection.commit()
+            flash("Your email has been verified",'success')
         else:
-            flash('User not found', 'danger')
-        cursor.close()
-    except Exception as e:
-        flash('Server error', 'danger')
+            flash("Your email is already verified", 'info')
+    else:
+        flash('User not found', 'danger')
+    cursor.close()
     return redirect(url_for('auth.login'))
 
 #Route for logging in
