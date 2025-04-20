@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FPU Campus Navigation System - Dashboard</title>
+    <link rel="stylesheet" href="../../static/css/leaflet.css" />
+    <link rel="stylesheet" href="../../static/css/style.css">
+    <link rel="stylesheet" href="../../static/css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="header">
+            <div class="logo-section">
+                <a href="https://www.floridapoly.edu" target="_blank">
+                    <img src="https://i0.wp.com/www.lkldnow.com/wp-content/uploads/2017/08/floridapolytext.jpg" alt="Florida Polytechnic University Logo">
+
+                </a>
+            </div>
+            <div class="account-section">
+                <a href="#" id="accountSettings">Account Settings</a>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="search-container">
+                    <div class="search-bar">
+                        <input type="text" class="search-input" placeholder="Search for a location..." id="searchInput">
+                        <button class="search-btn" id="searchBtn" title="Search"><i class="fas fa-search"></i></button>
+                        <button class="filter-btn" id="filterBtn" title="Filter"><i class="fas fa-filter"></i></button>
+                        <button class="directions-btn" id="directionsBtn" title="Get Directions"><i class="fas fa-route"></i></button>
+                    </div>
+                </div>
+                
+                <div class="sidebar" id="locationsSidebar" style="display: block;">
+                    <div class="sidebar-content">
+                        <h3>Campus Locations</h3>
+                        <div class="locations-list" id="locationsList">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="sidebar" id="filtersSidebar">
+                    <div class="sidebar-content">
+                        <h3>Filter Locations</h3>
+                        <div class="filter-categories">
+                            <div class="filter-item">
+                                <input type="checkbox" id="academic" data-category="academic">
+                                <label for="academic">Academic Buildings</label>
+                            </div>
+                            <div class="filter-item">
+                                <input type="checkbox" id="campus_safety" data-category="campus_safety">
+                                <label for="campus_safety">Campus Safety</label>
+                            </div>
+                            <div class="filter-item">
+                                <input type="checkbox" id="chem_lab" data-category="chem_lab">
+                                <label for="chem_lab">Chemistry Labs</label>
+                            </div>
+                            <div class="filter-item">
+                                <input type="checkbox" id="computer_lab" data-category="computer_lab">
+                                <label for="computer_lab">Computer Labs</label>
+                            </div>
+                            <div class="filter-item">
+                                <input type="checkbox" id="dining" data-category="dining">
+                                <label for="dining">Dining</label>
+                            </div>
+                            <div class="filter-item">
+                                <input type="checkbox" id="dorm" data-category="dorm">
+                                <label for="dorm">Dormitories</label>
+                            </div>
+                            <div class="filter-item">
+                                <input type="checkbox" id="has_bathroom" data-category="has_bathroom">
+                                <label for="has_bathroom">Bathrooms</label>
+                            </div>
+                            <div class="filter-item">
+                                <input type="checkbox" id="parking" data-category="parking">
+                                <label for="parking">Parking</label>
+                            </div>
+                            <div class="filter-item">
+                                <input type="checkbox" id="physics_lab" data-category="physics_lab">
+                                <label for="physics_lab">Physics Labs</label>
+                            </div>
+                            <div class="filter-item">
+                                <input type="checkbox" id="printer" data-category="printer">
+                                <label for="printer">Printers</label>
+                            </div>
+                            <div class="filter-item">
+                                <input type="checkbox" id="printer_3d" data-category="printer_3d">
+                                <label for="printer_3d">3D Printers</label>
+                            </div>
+                            <div class="filter-item">
+                                <input type="checkbox" id="study_room" data-category="study_room">
+                                <label for="study_room">Study Rooms</label>
+                            </div>
+                            <div class="filter-item">
+                                <input type="checkbox" id="vend_machine" data-category="vend_machine">
+                                <label for="vend_machine">Vending Machines</label>
+                            </div>
+                        </div>
+                        <button id="applyFiltersBtn" class="apply-filters-btn">Apply Filters</button>
+                    </div>
+                </div>
+                
+                <div class="sidebar" id="directionsSidebar">
+                    <div class="sidebar-content">
+                        <h3>Get Directions</h3>
+                        <div class="directions-form">
+                            <div class="form-group">
+                                <label for="startLocation">Start Location</label>
+                                <select id="startLocation" required>
+                                    <option value="">Select start location</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="endLocation">Destination</label>
+                                <select id="endLocation" required>
+                                    <option value="">Select destination</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="transportMode">Transport Mode</label>
+                                <select id="transportMode">
+                                    <option value="foot">Walking</option>
+                                    <option value="bicycle">Biking</option>
+                                    <option value="car">Driving</option>
+                                </select>
+                            </div>
+                            <button class="apply-filters-btn" id="calculateRoute">Calculate Route</button>
+                        </div>
+                        <div id="directionsResults" class="directions-results">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="map"></div>
+        </div>
+    </div>
+    <script src="../../static/js/leaflet.js"></script>
+    <script src="../../static/js/map.js" type="module"></script>
+    <script src="../../static/js/locations.js"></script>
+</body>
+</html>
