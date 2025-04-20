@@ -16,6 +16,7 @@ export function directionFunction(map, routeLayer, accessKey) {
 	    console.log("adfasdf");
         // Toggle directions panel when directions button is clicked
         if (directionsBtn) {
+		console.log("111111");
             directionsBtn.addEventListener('click', toggleDirectionsPanel);
         }
         
