@@ -159,7 +159,7 @@
                     <span>Already have an account? </span><a href="{{ url_for('auth.login') }}" class="reset-link" style="font-weight: bold;">Log in</a>
             </div>
                 <div id = "errorMessage" class = "error-message" style = "display: none;"></div>
-        </form>
+            </form>
     </div>
     </div>
     <script>
@@ -172,9 +172,21 @@
                 const username = document.getElementById('username').value;
                 const password = document.getElementById('password').value;
                 const confirm_password = document.getElementById('confirm_password').value;
-
                 const recaptchaResponse = grecaptcha.getResponse();
 
+                //prevent SQL injection
+                const notAllowed = /["';]/;
+                const nameAllowed = /^[A-Za-z]+$/;
+                if(notAllowed.test(first_name)|| notAllowed.test(last_name)|| notAllowed.test(password)|| notAllowed.test(confirm_password)){
+                    document.getElementById('errorMessage').textContent = 'Password consists of forbidden character(s). Please enter a different password.'
+                    document.getElementById('errorMessage').style.display = 'block';
+                    return;
+                }
+                if(!nameAllowed.test(first_name)||!nameAllowed.test(last_name)){
+                    document.getElementById('errorMessage').textContent = 'First name and last name must only contain letters.'
+                    document.getElementById('errorMessage').style.display = 'block';
+                    return;
+                }
                 if(!recaptchaResponse){
                     document.getElementById('errorMessage').textContent = 'Please complete reCAPTCHA';
                     document.getElementById('errorMessage').style.display = 'block';
@@ -187,6 +199,11 @@
                 }
                 if(password.length < 10){
                     document.getElementById('errorMessage').textContent = 'Password must be 10 characters';
+                    document.getElementById('errorMessage').style.display = 'block';
+                    return;
+                }
+                if(password !== confirm_password){
+                    document.getElementById('errorMessage').textContent = 'Passwords do not match'
                     document.getElementById('errorMessage').style.display = 'block';
                     return;
                 }
