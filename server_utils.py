@@ -89,7 +89,7 @@ def applyFilter(sql, filters):
                     db_query += f"{filters[x]} = 1"
 
                 else:
-                    db_query += f" or {filters[x]} = 1" # ensuring "or" is included for filters after the first one
+                    db_query += f" and {filters[x]} = 1" # ensuring "or" is included for filters after the first one
 
         cursor.execute(db_query)
         filtered_locations = cursor.fetchall() # storing query results
@@ -107,3 +107,21 @@ def applyFilter(sql, filters):
         err_message = str(e)
 
         return jsonify({"error": f"An error occurred while fetching filtered locations: {err_message}"}), 400
+
+def getAll(sql):
+    try:
+        cursor = sql.connect.cursor()
+        db_query = "select name, coords from locations;" #  getting all location names and coords from database
+        cursor.execute(db_query)
+        locations = cursor.fetchall()
+
+        location_pairs = [] # convert tuple to list of [name, coords] pairs
+        for location in locations:
+            location_pairs.append([location[0], location[1]])
+
+        cursor.close()
+        return jsonify(location_pairs), 200 #   cast results to json and return
+
+    except Exception as e:
+        err_message = str(e)
+        return jsonify({"error": f"An error occurred while fetching all locations: {err_message}"}), 400

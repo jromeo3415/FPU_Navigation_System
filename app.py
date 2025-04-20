@@ -3,7 +3,7 @@ from flask_mail import Mail
 from flask_cors import CORS
 from flask_login import login_required, logout_user
 from flask_mysqldb import MySQL
-from server_utils import calcRoute, getLocation, check_key, applyFilter
+from server_utils import calcRoute, getLocation, check_key, applyFilter, getAll
 import json
 from user_auth import auth, bcrypt, login_manager
 from dotenv import load_dotenv
@@ -59,9 +59,9 @@ def logout():
     return redirect(url_for('auth.login'))
 
 # need to remove following decorator and function
-@app.route('/<path:path>')
+'''@app.route('/<path:path>')
 def serve_static(path):
-    return send_from_directory('templates', path)
+    return send_from_directory('templates', path)'''
 
 '''
 expects a JSON packet with format;  "key": "key1", "locations": "start", "destination", "profile": "foot"
@@ -105,6 +105,18 @@ def returnFiltered():
     return filtered_locations
 
     #   curl -X POST 127.0.0.1:5000/returnFiltered -H "Content-Type: application/json" -d '{"key": "1234", "filters": ["has_bathroom", "dorm"]}'
+
+@app.route('/allLocations', methods=['POST'])
+def allLocations():
+    key = request.get_json() #  only argument should be access key
+
+    if not key:
+        return jsonify({"error": "Forbidden"}), 500
+
+    check_key(key["key"], accessKey) #  checking access key
+
+    return getAll(mysql)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -10,18 +10,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to load all locations
     function loadAllLocations() {
         // Prepare data for API call
-        const filterData = {
+        const filterData = { // may not be needed now
             key: accessKey,
             filters: ["academic", "campus_safety", "chem_lab", "computer_lab", "dining", "dorm", "has_bathroom", "parking"]
         };
-        
-        // API call to get all locations
-        fetch('/returnFiltered', {
+
+        fetch('/allLocations', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(filterData)
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({key: accessKey})
         })
         .then(response => {
             console.log('Response status:', response.status);
@@ -48,6 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Function to display locations in the sidebar
     function displayLocationsList(locations) {
+        console.log(locations)
         const locationsListElement = document.getElementById('locationsList');
         if (!locationsListElement) {
             console.error('locationsList element not found');
