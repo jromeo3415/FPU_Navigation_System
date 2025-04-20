@@ -44,8 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Function to display locations in the sidebar
-    function displayLocationsList(locations) {
-        console.log(locations)
+    function displayLocationsList(locations) { 
         const locationsListElement = document.getElementById('locationsList');
         if (!locationsListElement) {
             console.error('locationsList element not found');

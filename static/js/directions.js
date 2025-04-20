@@ -13,10 +13,8 @@ export function directionFunction(map, routeLayer, accessKey) {
     
     // Initialize the directions functionality
     function init() {
-	    console.log("adfasdf");
         // Toggle directions panel when directions button is clicked
         if (directionsBtn) {
-		console.log("111111");
             directionsBtn.addEventListener('click', toggleDirectionsPanel);
         }
         
@@ -44,7 +42,7 @@ export function directionFunction(map, routeLayer, accessKey) {
         }
         
         // Populate location dropdowns
-	console.log("populdated");
+	console.log("populated");
         populateLocationDropdowns();
     }
     
@@ -93,7 +91,6 @@ export function directionFunction(map, routeLayer, accessKey) {
             body: JSON.stringify({key: accessKey})
         })
         .then(response => {
-	    console.log(response);
             if (!response.ok) {
                 throw new Error('Network response was not ok: ' + response.status);
             }
@@ -120,7 +117,6 @@ export function directionFunction(map, routeLayer, accessKey) {
             // Add locations to dropdowns
             data.forEach(location => {
                 const name = location[0];
-		console.log(name);
                 
                 const startOption = document.createElement('option');
                 startOption.value = name;
