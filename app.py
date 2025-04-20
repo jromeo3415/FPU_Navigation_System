@@ -11,7 +11,7 @@ import os
 
 accessKey = 1234 # implementing an access key so users can not query the back end and get to decorator functions. another access key should be received from front end.
 
-osrm_ip = "100.83.147.89:5000"
+osrm_ip = "127.0.0.1:5000"
 app = Flask(__name__)  # Flask constructor
 
 CORS(app)
