@@ -1,6 +1,6 @@
 from flask_login import UserMixin, login_user,  logout_user, current_user, LoginManager
 from flask_wtf import FlaskForm
-from flask import url_for, render_template, request, flash, jsonify
+from flask import url_for, render_template, request, flash, jsonify, session
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.fields.simple import BooleanField
 from wtforms.validators import InputRequired, Length, ValidationError, Email
@@ -41,7 +41,7 @@ class User(UserMixin):
 
     @staticmethod
     def get(sql, user_id):
-        cursor = sql.connection.cursor()
+        cursor = sql.connection.cursor(MySQLdb.cursors.DictCursor)
         cursor.execute("SELECT id, username, password, email_verified FROM users WHERE id = %s", (user_id,))
         user_data = cursor.fetchone()
         cursor.close()
@@ -65,7 +65,7 @@ class RegisterForm(FlaskForm):
         if not username.data.endswith("floridapoly.edu"):
             raise ValidationError('Please enter a valid Florida Poly email address.', )
 
-        cursor = self.sql.connection.cursor()
+        cursor = self.sql.connection.cursor(MySQLdb.cursors.DictCursor)
         cursor.execute("SELECT username FROM users WHERE username = %s", (username,))
         existing_email = cursor.fetchone()
         cursor.close()
@@ -99,7 +99,7 @@ def register():
         if not username.endswith("floridapoly.edu"):
             return jsonify({'success': False, 'message': 'Please enter a valid Florida Poly email address.'}), 400
 
-        cursor = mysql.connection.cursor()
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
         existing_username = cursor.fetchone()
         if existing_username:
@@ -152,7 +152,7 @@ def email_verification(username, token):
     if verified_username != username:
         flash('Token does not match','danger')
         return redirect(url_for('auth.login'))
-    cursor = mysql.connection.cursor()
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute("SELECT email_verified FROM users WHERE username = %s", (username,))
     user = cursor.fetchone()
     if user:
@@ -175,6 +175,7 @@ def login():
 
     if request.method == 'GET':
         return render_template('html/login.html')
+
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
@@ -197,12 +198,12 @@ def login():
             if not user['email_verified']:
                 return jsonify({'success': False, 'message': 'Please verify your email address'}), 400
             user_obj = User(user['id'], user['username'], user['password'], user['email_verified'])
-            login_user(user_obj, remember_me)
+            login_user(user_obj, remember=remember_me)
             return jsonify({'success': True, 'redirect': '/dashboard'}), 200
         else:
-            return jsonify({'success': False, 'message': 'Incorrect password'})
+            return jsonify({'success': False, 'message': 'Incorrect password'}), 401
     else:
-        return jsonify({'success': False, 'message': 'Invalid email or password'})
+        return jsonify({'success': False, 'message': 'Invalid email or password'}), 404
 
 @auth.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
@@ -214,7 +215,7 @@ def forgot_password():
         if not username or '@floridapoly.edu' not in username:
             return jsonify({'success': False, 'message': 'Email not found. Please enter a valid Florida Poly Email registered to an account.'}), 400
 
-        cursor = mysql.connection.cursor()
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
         user = cursor.fetchone()
         cursor.close()
@@ -256,7 +257,7 @@ def reset_password(username, token):
 
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
 
-        cursor = mysql.connection.cursor()
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         cursor.execute("UPDATE users SET password = %s WHERE username = %s", (hashed_password, username))
         mysql.connection.commit()
         cursor.close()

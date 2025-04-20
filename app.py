@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, request, redirect, url_for, send_from_directory
+from flask import Flask, session, render_template, jsonify, request, redirect, url_for, send_from_directory
 from flask_mail import Mail
 from flask_cors import CORS
 from flask_login import login_required, logout_user
