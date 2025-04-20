@@ -11,7 +11,7 @@ from flask_wtf.recaptcha import RecaptchaField
 import requests
 from flask_login import LoginManager
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
-import MySQLdb
+import MySQLdb.cursors
 auth = Blueprint('auth', __name__)
 
 bcrypt = Bcrypt()
