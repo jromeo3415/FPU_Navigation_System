@@ -98,7 +98,7 @@ def register():
         if not response.get('success'):
             return jsonify({'success': False, 'message': 'reCAPTCHA failed.'}), 400
 
-        if not username.endswith("floridapoly.edu"):
+        if not username.endswith("@floridapoly.edu"):
             return jsonify({'success': False, 'message': 'Please enter a valid Florida Poly email address.'}), 400
 
         cursor = mysql.connection.cursor(pymysql.cursors.DictCursor)
@@ -107,12 +107,17 @@ def register():
         if existing_username:
             cursor.close()
             return jsonify({'success': False, 'message': 'Username already registered.'}), 400
-        cursor.execute("""
-            INSERT INTO users (username, password, first_name, last_name, email_verified)
-            VALUES (%s, %s, %s, %s, %s)
-        """,(username, hashed_password, first_name, last_name, 0))
-        mysql.connection.commit()
+        try:
+            cursor.execute("""
+                INSERT INTO users (username, password, first_name, last_name, email_verified)
+                VALUES (%s, %s, %s, %s, %s)
+            """,(username, hashed_password, first_name, last_name, 0))
+            mysql.connection.commit()
+        except Exception as e:
+            cursor.close()
+            return jsonify({'success': False, 'message': str(e)}), 400
         cursor.close()
+
         #Generate token
         serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
         token = serializer.dumps(username, salt='email-confirm')
@@ -155,20 +160,24 @@ def email_verification(username, token):
         flash('Token does not match','danger')
         return redirect(url_for('auth.login'))
     cursor = mysql.connection.cursor(pymysql.cursors.DictCursor)
-    cursor.execute("SELECT email_verified FROM users WHERE username = %s", (username,))
-    user = cursor.fetchone()
-    print("Fetched user:", user)
-    if user:
-        email_verified = user[6]
-        if email_verified == 0:
-            cursor.execute("UPDATE users SET email_verified = 1 WHERE username = %s", (username,))
-            mysql.connection.commit()
-            flash("Your email has been verified",'success')
+    try:
+        cursor.execute("SELECT email_verified FROM users WHERE username = %s", (username,))
+        user = cursor.fetchone()
+        print("Fetched user:", user)
+        if user:
+            email_verified = user['email_verified']
+            if email_verified == 0:
+                cursor.execute("UPDATE users SET email_verified = 1 WHERE username = %s", (username,))
+                mysql.connection.commit()
+                flash("Your email has been verified",'success')
+            else:
+                flash("Your email is already verified", 'info')
         else:
-            flash("Your email is already verified", 'info')
-    else:
-        flash('User not found', 'danger')
-    cursor.close()
+            flash('User not found', 'danger')
+    except Exception as e:
+        flash(f"An error occured {str(e)}", 'danger')
+    finally:
+        cursor.close()
     return redirect(url_for('auth.login'))
 
 #Route for logging in
@@ -216,7 +225,7 @@ def forgot_password():
         username = data.get('username')
         #check if florida poly email
         if not username or '@floridapoly.edu' not in username:
-            return jsonify({'success': False, 'message': 'Email not found. Please enter a valid Florida Poly Email registered to an account.'}), 400
+            return jsonify({'success': False, 'message': 'Please enter a valid Florida Poly Email registered to an account.'}), 400
 
         cursor = mysql.connection.cursor(pymysql.cursors.DictCursor)
         cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
