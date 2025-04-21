@@ -1,6 +1,6 @@
-from flask_login import UserMixin, login_user,  logout_user, current_user, LoginManager
+from flask_login import UserMixin, login_user,  logout_user
 from flask_wtf import FlaskForm
-from flask import url_for, render_template, request, flash, jsonify, session
+from flask import url_for, render_template, request, flash, jsonify
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.fields.simple import BooleanField
 from wtforms.validators import InputRequired, Length, ValidationError, Email
@@ -48,9 +48,13 @@ class User(UserMixin):
         user_data = cursor.fetchone()
         cursor.close()
         if user_data:
-            return User(*user_data)
+            return User(
+                user_data['id'],
+                user_data['username'],
+                user_data['password'],
+                user_data['email_verified']
+            )
         return None
-
 
 class RegisterForm(FlaskForm):
     username = StringField('Username', validators=[InputRequired(), Email()], render_kw={"placeholder": "Username"})
