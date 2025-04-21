@@ -90,6 +90,8 @@ def register():
     from app import mysql, bcrypt, mail
     if request.method == 'POST':
         data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No data'}), 400
         first_name = data.get('first_name')
         last_name = data.get('last_name')
         username = data.get('username')

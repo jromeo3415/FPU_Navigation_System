@@ -190,13 +190,13 @@
                     document.getElementById('errorMessage').style.display = 'block';
                     return;
                 }
-                console.log({
+                console.log("Sending JSON:", JSON.stringify({
                     first_name,
                     last_name,
                     username,
                     password,
                     recaptchaResponse: recaptchaResponse
-                });
+                }));
                 const response = await fetch('/register', {
                     method: 'POST',
                     headers: {
