@@ -84,12 +84,10 @@ export function directionFunction(map, routeLayer, accessKey) {
         };
         
         // API call to get all locations
-        return fetch('/returnFiltered', {
+        return fetch('/allLocations', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(filterData)
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({key: accessKey})
         })
         .then(response => {
             if (!response.ok) {
