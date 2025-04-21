@@ -159,7 +159,7 @@ def email_verification(username, token):
     user = cursor.fetchone()
     print("Fetched user:", user)
     if user:
-        email_verified = user['email_verified']
+        email_verified = user[6]
         if email_verified == 0:
             cursor.execute("UPDATE users SET email_verified = 1 WHERE username = %s", (username,))
             mysql.connection.commit()
