@@ -89,9 +89,15 @@ class LoginForm(FlaskForm):
 def register():
     from app import mysql, bcrypt, mail
     if request.method == 'POST':
-        data = request.get_json()
+        if not request.is_json:
+            return jsonify({'success': False, 'message': 'No data'}), 400
+        try:
+            data = request.get_json()
+        except Exception as e:
+            return jsonify({'success': False, 'message': str(e)}), 400
         if not data:
-            return jsonify({'error': 'No data'}), 400
+            return jsonify({'success': False, 'message': 'No data'}), 400
+
         first_name = data.get('first_name')
         last_name = data.get('last_name')
         username = data.get('username')
