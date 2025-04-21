@@ -150,6 +150,7 @@ def email_verification(username, token):
     serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
     try:
         verified_username = serializer.loads(token, salt='email-confirm', max_age=3600)
+        print("Username from token:", verified_username)
     except SignatureExpired:
         flash('The verification link has expired', 'danger')
         return redirect(url_for('auth.login'))
@@ -175,7 +176,7 @@ def email_verification(username, token):
         else:
             flash('User not found', 'danger')
     except Exception as e:
-        flash(f"An error occured {str(e)}", 'danger')
+        flash(f"An error occurred {str(e)}", 'danger')
     finally:
         cursor.close()
     return redirect(url_for('auth.login'))
