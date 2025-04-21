@@ -11,7 +11,9 @@ from flask_wtf.recaptcha import RecaptchaField
 import requests
 from flask_login import LoginManager
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
-import MySQLdb.cursors
+import pymysql.cursors
+import pymysql
+pymysql.install_as_MySQLdb()
 auth = Blueprint('auth', __name__)
 
 bcrypt = Bcrypt()
@@ -41,7 +43,7 @@ class User(UserMixin):
 
     @staticmethod
     def get(sql, user_id):
-        cursor = sql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor = sql.connection.cursor(pymysql.cursors.DictCursor)
         cursor.execute("SELECT id, username, password, email_verified FROM users WHERE id = %s", (user_id,))
         user_data = cursor.fetchone()
         cursor.close()
@@ -65,7 +67,7 @@ class RegisterForm(FlaskForm):
         if not username.data.endswith("floridapoly.edu"):
             raise ValidationError('Please enter a valid Florida Poly email address.', )
 
-        cursor = self.sql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor = self.sql.connection.cursor(pymysql.cursors.DictCursor)
         cursor.execute("SELECT username FROM users WHERE username = %s", (username,))
         existing_email = cursor.fetchone()
         cursor.close()
@@ -99,7 +101,7 @@ def register():
         if not username.endswith("floridapoly.edu"):
             return jsonify({'success': False, 'message': 'Please enter a valid Florida Poly email address.'}), 400
 
-        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor = mysql.connection.cursor(pymysql.cursors.DictCursor)
         cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
         existing_username = cursor.fetchone()
         if existing_username:
@@ -152,9 +154,10 @@ def email_verification(username, token):
     if verified_username != username:
         flash('Token does not match','danger')
         return redirect(url_for('auth.login'))
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor = mysql.connection.cursor(pymysql.cursors.DictCursor)
     cursor.execute("SELECT email_verified FROM users WHERE username = %s", (username,))
     user = cursor.fetchone()
+    print("Fetched user:", user)
     if user:
         email_verified = user['email_verified']
         if email_verified == 0:
@@ -188,7 +191,7 @@ def login():
     if not response.get('success'):
         return jsonify({'success': False, 'message': 'Please try again.'}), 401
 
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor = mysql.connection.cursor(pymysql.cursors.DictCursor)
     cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
     user = cursor.fetchone()
     cursor.close()
@@ -215,7 +218,7 @@ def forgot_password():
         if not username or '@floridapoly.edu' not in username:
             return jsonify({'success': False, 'message': 'Email not found. Please enter a valid Florida Poly Email registered to an account.'}), 400
 
-        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor = mysql.connection.cursor(pymysql.cursors.DictCursor)
         cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
         user = cursor.fetchone()
         cursor.close()
@@ -257,7 +260,7 @@ def reset_password(username, token):
 
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
 
-        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor = mysql.connection.cursor(pymysql.cursors.DictCursor)
         cursor.execute("UPDATE users SET password = %s WHERE username = %s", (hashed_password, username))
         mysql.connection.commit()
         cursor.close()
