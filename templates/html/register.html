@@ -174,11 +174,27 @@
                 const confirm_password = document.getElementById('confirm_password').value;
 
                 const recaptchaResponse = grecaptcha.getResponse();
+                //prevent SQL injection
+                const notAllowed = /["';]/;
+                const nameAllowed = /^[A-Za-z]+$/;
 
+                if(notAllowed.test(first_name)|| notAllowed.test(last_name)|| notAllowed.test(password)|| notAllowed.test(confirm_password)){
+                    document.getElementById('errorMessage').textContent = 'Password consists of forbidden characters. Please enter a different password.'
+                    document.getElementById('errorMessage').style.display = 'block';
+                }
+                if(!nameAllowed.test(first_name)||!nameAllowed.test(last_name)){
+                    document.getElementById('errorMessage').textContent = 'First name and last name must only contain letters'
+                    document.getElementById('errorMessage').style.display = 'block';
+                }
                 if(!recaptchaResponse){
                     document.getElementById('errorMessage').textContent = 'Please complete reCAPTCHA';
                     document.getElementById('errorMessage').style.display = 'block';
                     return;
+                }
+                if(password !== confirm_password){
+                document.getElementById('errorMessage').textContent = 'Passwords do not match';
+                document.getElementById('errorMessage').style.display = 'block';
+                return;
                 }
                 if(!username.endsWith('@floridapoly.edu')){
                     document.getElementById('errorMessage').textContent =  'Please enter a valid Florida Poly email'
