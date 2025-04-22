@@ -84,7 +84,7 @@ export function directionFunction(map, routeLayer, accessKey) {
         };
         
         // API call to get all locations
-	return fetch('/allLocations', {
+        return fetch('/allLocations', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({key: accessKey})
