@@ -54,9 +54,9 @@ The Florida Poly Navigation System is a comprehensive campus navigation solution
 
 3. Configure your .env file with the required credentials
 
-4. Set up OSRM Docker containers for each profile (foot, car, bicycle)
+4. Set up OSRM Docker containers for each profile (foot, car, bicycle) ( https://github.com/Project-OSRM/osrm-backend )
 
-5. Update the OSRM IP in app.py ( https://github.com/Project-OSRM/osrm-backend )
+5. Update the OSRM IP in app.py
 
 6. Run the application
    ```bash
