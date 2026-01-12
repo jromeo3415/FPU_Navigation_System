@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Alt text](https://floridapoly.edu/wp-content/uploads/2025/08/CYAN_Phoenix_With_Words_RGB.png)
+<img src="https://floridapoly.edu/wp-content/uploads/2025/08/CYAN_Phoenix_With_Words_RGB.png" alt="Florida Poly Logo" width="300">
 
 [![Website](https://img.shields.io/badge/Website-floridapolymap.com-6a0dad?style=for-the-badge)](https://floridapolymap.com)
 
